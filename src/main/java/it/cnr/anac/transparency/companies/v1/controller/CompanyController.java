@@ -23,10 +23,10 @@ import it.cnr.anac.transparency.companies.v1.dto.CompanyDto;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,9 +49,8 @@ public class CompanyController {
   }
 
   @GetMapping(ApiRoutes.LIST)
-  public ResponseEntity<List<CompanyDto>> list() {
-    val companies = 
-        companyRepository.findAllActive().stream().map(c -> mapper.convert(c)).collect(Collectors.toList());
+  public ResponseEntity<Page<CompanyDto>> list(@NotNull final Pageable pageable) {
+    val companies = companyRepository.findAllActive(pageable).map(mapper::convert);
     return ResponseEntity.ok().body(companies);
   }
 
