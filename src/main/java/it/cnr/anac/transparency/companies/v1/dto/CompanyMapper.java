@@ -32,16 +32,17 @@ import org.mapstruct.MappingTarget;
 public interface CompanyMapper {
 
   @Mapping(target = "dataAggiornamento", ignore = true)
-  CompanyDto convert(Company company);
+  CompanyShowDto convert(Company company);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "sorgente", constant = "indicePA")
-  CompanyDto convert(EnteDto enteDto);
+  CompanyShowDto convert(EnteDto enteDto);
 
+  @Mapping(target = "id", ignore = true)
   @Mapping(target = "dataCancellazione", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "version", ignore = true)
-  void update(@MappingTarget Company company, CompanyDto companyDto);
+  void update(@MappingTarget Company company, CompanyCreateDto companyDto);
 
 }

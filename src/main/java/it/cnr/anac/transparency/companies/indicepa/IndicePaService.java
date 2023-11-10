@@ -20,7 +20,7 @@ package it.cnr.anac.transparency.companies.indicepa;
 import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.models.CompanySource;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyDto;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
 import java.time.LocalDate;
 import java.util.List;
@@ -53,7 +53,7 @@ public class IndicePaService {
   /**
    * @return la lista delle aziende pubbliche presenti nel IndicePA
    */
-  public List<CompanyDto> getCompaniesFromIndicePa(Optional<Integer> limit) {
+  public List<CompanyShowDto> getCompaniesFromIndicePa(Optional<Integer> limit) {
     String indicePaSql = 
         String.format("SELECT * from \"d09adf99-dc10-4349-8c53-27b1e5aa97b6\"", indicePaResourceId);
 
@@ -79,18 +79,18 @@ public class IndicePaService {
     val localCompanies = repo.findBySorgente(CompanySource.indicePA);
 
     val indicePaCompaniesMap = 
-        indicePaCompanies.stream().collect(Collectors.toMap(CompanyDto::getCodiceIpa, Function.identity()));
+        indicePaCompanies.stream().collect(Collectors.toMap(CompanyShowDto::getCodiceIpa, Function.identity()));
     val localCompaniesMap = 
         localCompanies.stream().collect(Collectors.toMap(Company::getCodiceIpa, Function.identity()));
 
-    List<CompanyDto> indicePaNotInLocal = indicePaCompaniesMap.keySet().stream()
+    List<CompanyShowDto> indicePaNotInLocal = indicePaCompaniesMap.keySet().stream()
         .filter(element -> !localCompaniesMap.keySet().contains(element))
         .map(codiceIpa -> indicePaCompaniesMap.get(codiceIpa))
         .collect(Collectors.toList());
 
     companiesUpdated += insertCompanies(indicePaNotInLocal);
 
-    List<CompanyDto> indicePaInLocal = indicePaCompaniesMap.keySet().stream()
+    List<CompanyShowDto> indicePaInLocal = indicePaCompaniesMap.keySet().stream()
         .filter(element -> localCompaniesMap.keySet().contains(element))
         .map(codiceIpa -> indicePaCompaniesMap.get(codiceIpa))
         .collect(Collectors.toList());
@@ -102,7 +102,7 @@ public class IndicePaService {
     //precedenza per data. 
     //Inoltre vengono disabilitati solo gli enti pubblici che avevano come "sorgente" indicePA.
     val allIndicePaCompaniesMap = 
-        allIndicePaCompanies.stream().collect(Collectors.toMap(CompanyDto::getCodiceIpa, Function.identity()));
+        allIndicePaCompanies.stream().collect(Collectors.toMap(CompanyShowDto::getCodiceIpa, Function.identity()));
     List<Company> localNotInIndicePaToDisable = localCompaniesMap.keySet().stream()
         .filter(element -> !allIndicePaCompaniesMap.keySet().contains(element))
         .map(codiceIpa -> localCompaniesMap.get(codiceIpa))
@@ -114,9 +114,9 @@ public class IndicePaService {
     return companiesUpdated;
   }
 
-  private int insertCompanies(List<CompanyDto> companies) {
+  private int insertCompanies(List<CompanyShowDto> companies) {
     int companyInserted = 0;
-    for (CompanyDto companyDto : companies) {
+    for (CompanyShowDto companyDto : companies) {
       Company company = new Company();
       company.setSorgente(CompanySource.indicePA);
       mapper.update(company, companyDto);
@@ -127,9 +127,9 @@ public class IndicePaService {
     return companyInserted;
   }
 
-  private int updateCompanies(List<CompanyDto> companies) {
+  private int updateCompanies(List<CompanyShowDto> companies) {
     int companyUpdated = 0;
-    for (CompanyDto companyDto : companies) {
+    for (CompanyShowDto companyDto : companies) {
       Company company = 
           repo.findByCodiceIpa(companyDto.getCodiceIpa())
             .orElseThrow(() -> new RuntimeException(
@@ -156,7 +156,7 @@ public class IndicePaService {
     return companiesDisabled;
   }
 
-  private boolean areEqual(Company company, CompanyDto companyDto) {
+  private boolean areEqual(Company company, CompanyShowDto companyDto) {
     return Objects.equals(company.getAcronimo(), companyDto.getAcronimo()) 
         && Objects.equals(company.getCodiceCategoria(), companyDto.getCodiceCategoria())
         && Objects.equals(company.getCodiceFiscaleEnte(), companyDto.getCodiceFiscaleEnte())

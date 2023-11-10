@@ -15,26 +15,33 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package it.cnr.anac.transparency.companies.v1;
+package it.cnr.anac.transparency.companies.v1.dto;
+
+import it.cnr.anac.transparency.companies.models.CompanySource;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
+import lombok.Data;
+import lombok.ToString;
 
 /**
- * Costanti utili per le definizioni delle rotte delle API.
- *
+ * Data transfer object per le informazioni relativa alla creazione di un Company.
  */
-public class ApiRoutes {
+@ToString
+@Data
+public class CompanyCreateDto {
 
-  private static final String ONLY_DIGITS_REGEX = "^\\d+$";
-  //private static final String ALPHANUMERIC_SPECIALS_REGEX = "^\\d*[a-zA-Z\\W].*$";
-
-  public static final String BASE_PATH = "/v1";
-
-  public static final String ID_REGEX = "{id:" + ONLY_DIGITS_REGEX + "}";
-
-  public static final String LIST = "";
-  public static final String SHOW = "/" + ID_REGEX;
-  public static final String CREATE = "";
-  public static final String UPDATE = "";
-  public static final String PATCH = "/patch/" + ID_REGEX;
-  public static final String DELETE = "/" + ID_REGEX;
+  @NotNull
+  private String codiceIpa;
+  @NotNull
+  private String denominazioneEnte;
+  private String codiceFiscaleEnte;
+  private String tipologia;
+  private String codiceCategoria;
+  private String codiceNatura;
+  private String acronimo;
+  @NotNull
+  private String sitoIstituzionale;
+  private CompanySource sorgente;
+  private LocalDate dataAggiornamento;
 
 }
