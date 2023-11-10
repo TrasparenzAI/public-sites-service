@@ -19,7 +19,7 @@ package it.cnr.anac.transparency.companies.v1.controller;
 
 import it.cnr.anac.transparency.companies.indicepa.IndicePaService;
 import it.cnr.anac.transparency.companies.v1.ApiRoutes;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyDto;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +41,7 @@ public class AdminController {
   private final IndicePaService indicePaService;
 
   @GetMapping("/indicePaCompanies")
-  public ResponseEntity<List<CompanyDto>> indicePaCompanies(
+  public ResponseEntity<List<CompanyShowDto>> indicePaCompanies(
       @RequestParam(name = "limit") Optional<Integer> limit) {
     val companies = indicePaService.getCompaniesFromIndicePa(limit);
     return ResponseEntity.ok(companies);

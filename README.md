@@ -19,8 +19,9 @@ Public Sites fornisce alcuni servizi REST utilizzabili in produzione per:
  - mostrare la lista degli enti presenti negli OpenData di IndicePA
  - inserire ed aggiornare all'interno del servizio le informazioni degli Enti tramite gli OpenData di IndicePA 
  - visualizzare i dati di un Ente
- - mostrare la lista degli Enti presenti nel servizio
-
+ - mostrare la lista paginata degli Enti presenti nel servizio
+ - inserire, aggiornare e cancellare le informazioni degli Enti all'interno del servizio (direttamente senza passare da IndicePA)
+ 
 I servizi saranno estesi per coprire tutte le funzionalità necessarie al crawling ed elaborazione dei siti web
 delle PA Italiane.
 

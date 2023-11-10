@@ -15,31 +15,26 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package it.cnr.anac.transparency.companies.v1.dto;
+package it.cnr.anac.transparency.companies.utils;
 
-import it.cnr.anac.transparency.companies.models.CompanySource;
-import java.time.LocalDate;
-import lombok.Data;
-import lombok.ToString;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Data transfer object per le informazioni sulle Company.
+ * Gestione delle eccezioni sollevate nei controller REST.
  *
  */
-@ToString
-@Data
-public class CompanyDto {
+@RestControllerAdvice
+public class ControllerExceptionHandler {
 
-  private String id;
-  private String codiceIpa;
-  private String denominazioneEnte;
-  private String codiceFiscaleEnte;
-  private String tipologia;
-  private String codiceCategoria;
-  private String codiceNatura;
-  private String acronimo;
-  private String sitoIstituzionale;
-  private CompanySource sorgente;
-  private LocalDate dataAggiornamento;
+  @ExceptionHandler(EntityNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ResponseEntity<String> handleOfficeNotFound(RuntimeException ex) {
+    return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+  }
 
 }
