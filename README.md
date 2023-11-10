@@ -21,7 +21,10 @@ Public Sites fornisce alcuni servizi REST utilizzabili in produzione per:
  - visualizzare i dati di un Ente
  - mostrare la lista paginata degli Enti presenti nel servizio
  - inserire, aggiornare e cancellare le informazioni degli Enti all'interno del servizio (direttamente senza passare da IndicePA)
- 
+
+I servizi REST sono documentati tramite OpenAPI consultabile all'indirizzo /swagger-ui/index.html.
+L'OpenAPI del servizio di devel è disponibile all'indirizzo https://dica33.ba.cnr.it/publicsites-service/swagger-ui/index.html.
+
 I servizi saranno estesi per coprire tutte le funzionalità necessarie al crawling ed elaborazione dei siti web
 delle PA Italiane.
 

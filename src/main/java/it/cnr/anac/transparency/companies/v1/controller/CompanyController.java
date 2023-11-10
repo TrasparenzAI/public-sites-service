@@ -17,6 +17,12 @@
 
 package it.cnr.anac.transparency.companies.v1.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.utils.DtoToEntityConverter;
 import it.cnr.anac.transparency.companies.v1.ApiRoutes;
@@ -27,7 +33,6 @@ import it.cnr.anac.transparency.companies.v1.dto.CompanyUpdateDto;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.websocket.server.PathParam;
 import java.time.LocalDate;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Company Controller", description = "Gestione delle informazioni degli Enti")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -55,7 +61,16 @@ public class CompanyController {
   private final CompanyRepository companyRepository;
   private final CompanyMapper mapper;
   private final DtoToEntityConverter dtoToEntityConverter;
-  
+
+  @Operation(
+      summary = "Visualizzazione delle informazioni di un ente.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Restituiti i dati dell'ente."),
+      @ApiResponse(responseCode = "404", 
+          description = "Ente non trovata con l'id fornito.",
+          content = @Content)
+  })
   @GetMapping(ApiRoutes.SHOW)
   public ResponseEntity<CompanyShowDto> show(@NotNull @PathVariable("id") Long id) {
     val company = companyRepository.findById(id)
@@ -63,12 +78,30 @@ public class CompanyController {
     return ResponseEntity.ok().body(mapper.convert(company));
   }
 
+  @Operation(
+      summary = "Visualizzazione di tutti gli enti presenti nel sistema.",
+      description = "Le informazioni sono restituite paginte'.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Restitutita una pagina della la lista degli enti presenti.")
+  })
   @GetMapping(ApiRoutes.LIST)
-  public ResponseEntity<Page<CompanyShowDto>> list(@NotNull final Pageable pageable) {
+  public ResponseEntity<Page<CompanyShowDto>> list(
+      @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}") 
+      Pageable pageable) {
     val companies = companyRepository.findAllActive(pageable).map(mapper::convert);
     return ResponseEntity.ok().body(companies);
   }
 
+  @Operation(
+      summary = "Creazione di un ente.",
+      description = "Questa è la creazione di ente non presente in IndicePA, quelli presenti"
+          + "in IndicePA sono importati automaticamente.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Ente creato correttamente."),
+      @ApiResponse(responseCode = "400", description = "Validazione delle informazioni obbligatorie fallita.", 
+          content = @Content)
+  })
   @PutMapping(ApiRoutes.CREATE)
   public ResponseEntity<CompanyShowDto> create(@NotNull @Valid @RequestBody CompanyCreateDto companyDto) {
     log.debug("CompanyController::create companyDto = {}", companyDto);
@@ -78,6 +111,12 @@ public class CompanyController {
     return ResponseEntity.status(HttpStatus.CREATED).body(mapper.convert(company));
   }
 
+  @Operation(
+      summary = "Aggiornamento dei dati di un ente.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Persona aggiornata correttamente."),
+      @ApiResponse(responseCode = "400", description = "Validazione delle informazioni obbligatorie fallita.")
+  })
   @PostMapping(ApiRoutes.UPDATE)
   public ResponseEntity<CompanyShowDto> update(@NotNull @Valid @RequestBody CompanyUpdateDto companyDto) {
     log.debug("CompanyController::update personDto = {}", companyDto);
@@ -87,8 +126,18 @@ public class CompanyController {
     return ResponseEntity.ok().body(mapper.convert(commpany));
   }
 
+  @Operation(
+      summary = "Eliminazione di un ente.", 
+      description = "L'ente viene disattivato impostando una data di cancellazione, è possibile "
+          + "cancellarlo definitivamente utilizzando il parametro \"forever\".")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Ente eliminato correttamente"),
+      @ApiResponse(responseCode = "409", description = "Ente già cancellato")
+  })
   @DeleteMapping(ApiRoutes.DELETE)
-  ResponseEntity<Void> delete(@NotNull @PathVariable("id") Long id, @PathParam("forever") Optional<Boolean> forever) {
+  ResponseEntity<Void> delete(
+      @NotNull @PathVariable("id") Long id, 
+      @PathVariable("forever") Optional<Boolean> forever) {
     log.debug("CompanyController::delete id = {}, forever= {}", id, forever);
     val company = companyRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + id));
@@ -96,6 +145,9 @@ public class CompanyController {
       companyRepository.delete(company);
       log.info("Eliminato definitivamente ente {}", company);
     } else {
+      if (company.getDataCancellazione() != null) {
+        return ResponseEntity.status(409).build();
+      }
       company.setDataCancellazione(LocalDate.now());
       companyRepository.save(company);
       log.info("Imposta data di cancellazione ad oggi per ente {}", company);

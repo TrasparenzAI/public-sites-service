@@ -17,6 +17,10 @@
 
 package it.cnr.anac.transparency.companies.v1.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.cnr.anac.transparency.companies.indicepa.IndicePaService;
 import it.cnr.anac.transparency.companies.v1.ApiRoutes;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
@@ -32,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Admin Controller", description = "Metodi di supporto per la gestione del servizio")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -40,6 +45,14 @@ public class AdminController {
 
   private final IndicePaService indicePaService;
 
+  @Operation(
+      summary = "Visualizzazione di tutti gli enti presenti in IndicePA.",
+      description = "Il servizio effettua una chiamata agli OpenData di IndicePA e li presenta"
+          + " come info json")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Restitutita la lista degli enti presenti in IndicePA.")
+  })
   @GetMapping("/indicePaCompanies")
   public ResponseEntity<List<CompanyShowDto>> indicePaCompanies(
       @RequestParam(name = "limit") Optional<Integer> limit) {
@@ -47,18 +60,19 @@ public class AdminController {
     return ResponseEntity.ok(companies);
   }
 
-  @GetMapping("/indicePaCompaniesCount")
-  public ResponseEntity<Integer> indicePaCompaniesCount() {
-    val companies =  indicePaService.getCompaniesFromIndicePa(Optional.empty());
-    return ResponseEntity.ok(companies.size());
-  }
-
+  @Operation(
+      summary = "Aggiornamento degli enti presenti nel servizio tramite IndicePA.",
+      description = "Aggiorna i dati degli enti presenti nel sistema prelevando le inforrmazioni "
+          + "degli enti tramite IndicePA.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Numero degli enti presenti in IndicePA aggiornati all'interno del servizio.")
+  })
   @GetMapping("/updateIndicePaCompanies")
   public ResponseEntity<Integer> updateIndicePaCompanies(
       @RequestParam(name = "updatedFrom") Optional<LocalDate> updatedFrom) {
     log.info("Aggiornamento enti utilizzando i dati dell'indicePA, con data aggiornamento a "
-        + "partire da {}",
-        updatedFrom);
+        + "partire da {}", updatedFrom);
     val companiesUpdated = indicePaService.updateCompaniesFromIndicePa(updatedFrom);
     return ResponseEntity.ok(companiesUpdated);
   }
