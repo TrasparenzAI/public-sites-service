@@ -27,9 +27,8 @@ delle PA Italiane.
 
 ## 👏 Come Contribuire 
 
-Lo scopo principale di questo repository è continuare ad evolvere ePAS. 
-Vogliamo contribuire a questo progetto nel modo più semplice e trasparente possibile e siamo grati
-alla comunità per ogni contribuito a correggere bug e miglioramenti.
+E' possibile contribuire a questo progetto utilizzando le modalità standard della comunità opensource 
+(issue + pull request) e siamo grati alla comunità per ogni contribuito a correggere bug e miglioramenti.
 
 ## 📄 Licenza
 

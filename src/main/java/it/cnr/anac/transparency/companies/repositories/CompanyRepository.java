@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Repository per l'accesso ai dati delle Company.
@@ -37,6 +39,6 @@ public interface CompanyRepository  extends JpaRepository<Company,Long>{
   public List<Company> findBySorgente(CompanySource companySource);
 
   @Query("SELECT c FROM Company c WHERE c.dataCancellazione is null")
-  public List<Company> findAllActive();
+  public Page<Company> findAllActive(Pageable page);
 
 }
