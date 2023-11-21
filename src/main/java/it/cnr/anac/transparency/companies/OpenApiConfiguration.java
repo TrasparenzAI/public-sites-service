@@ -32,7 +32,9 @@ import org.springframework.context.annotation.Configuration;
     version = "0.0.1-SNAPSHOT", 
     description = "Public Sites Service si occupa di gestire le informazioni principali relative "
         + "agli enti pubblici italiani ed in particolare i siti istituzionali"),
-    servers = {@Server(url = "/", description = "Public Sites Service URL")}
+    servers = {
+        @Server(url = "/public-sites-service", description = "Public Sites Service URL"),
+        @Server(url = "/", description = "Public Sites Service URL")}
     )
 public class OpenApiConfiguration {
 
