@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>it.cnr.anac.transparency.companies</groupId>
 	<artifactId>public-sites-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<name>public-sites-service</name>
 	<description>Servizio per fornire la lista delle amministrazioni</description>
 	<properties>
