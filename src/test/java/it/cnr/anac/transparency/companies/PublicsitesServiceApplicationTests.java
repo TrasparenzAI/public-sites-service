@@ -1,4 +1,4 @@
-package it.cnr.anac.transparency.publicsitesservice;
+package it.cnr.anac.transparency.companies;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

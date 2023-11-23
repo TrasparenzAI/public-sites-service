@@ -36,6 +36,9 @@ public interface CompanyMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "sorgente", constant = "indicePA")
+  @Mapping(target = "dataCancellazione", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "updatedAt", ignore = true)
   CompanyShowDto convert(EnteDto enteDto);
 
   @Mapping(target = "id", ignore = true)

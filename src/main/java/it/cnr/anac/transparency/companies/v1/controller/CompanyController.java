@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.cnr.anac.transparency.companies.repositories.CompanyDao;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.utils.DtoToEntityConverter;
 import it.cnr.anac.transparency.companies.v1.ApiRoutes;
@@ -49,6 +50,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Company Controller", description = "Gestione delle informazioni degli Enti")
@@ -59,6 +61,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CompanyController {
 
   private final CompanyRepository companyRepository;
+  private final CompanyDao companyDao;
   private final CompanyMapper mapper;
   private final DtoToEntityConverter dtoToEntityConverter;
 
@@ -83,13 +86,20 @@ public class CompanyController {
       description = "Le informazioni sono restituite paginte'.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
-          description = "Restitutita una pagina della la lista degli enti presenti.")
+          description = "Restitutita una pagina della lista degli enti presenti.")
   })
   @GetMapping(ApiRoutes.LIST)
   public ResponseEntity<Page<CompanyShowDto>> list(
+      @RequestParam("codiceCategoria") Optional<String> codiceCategoria,
+      @RequestParam("codiceFiscaleEnte") Optional<String> codiceFiscaleEnte,
+      @RequestParam("codiceIpa") Optional<String> codiceIpa,
+      @RequestParam("denominazioneEnte") Optional<String> denominazioneEnte,
       @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}") 
       Pageable pageable) {
-    val companies = companyRepository.findAllActive(pageable).map(mapper::convert);
+    val companies = 
+        companyDao.findAllActive(codiceCategoria, codiceFiscaleEnte, codiceIpa, 
+            denominazioneEnte, pageable)
+          .map(mapper::convert);
     return ResponseEntity.ok().body(companies);
   }
 

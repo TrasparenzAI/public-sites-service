@@ -21,16 +21,17 @@ import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.models.CompanySource;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 /**
  * Repository per l'accesso ai dati delle Company.
  *
  */
-public interface CompanyRepository  extends JpaRepository<Company,Long>{
+public interface CompanyRepository  extends JpaRepository<Company,Long>, QuerydslPredicateExecutor<Company>{
 
   public Optional<Company> findById(Long id);
 
