@@ -15,24 +15,27 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package it.cnr.anac.transparency.companies;
+package it.cnr.anac.transparency.companies.indicepa;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import java.util.Optional;
+import javax.inject.Inject;
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
-/**
- * Classe per l'avvio del servizio tramite Spring Boot.
- *
- */
-@EnableScheduling
-@EnableFeignClients
-@SpringBootApplication
-public class PublicSitesServiceApplication {
+@Slf4j
+@Component
+public class PeriodicUpdateIndicePaTask {
 
-  public static void main(String[] args) {
-    SpringApplication.run(PublicSitesServiceApplication.class, args);
+  @Inject
+  IndicePaService service;
+
+  @Scheduled(cron = "0 30 06 ? * *")
+  public void everyFiveSeconds() {
+    log.info("Avvio aggiornamento degli enti da IndicePA");
+    val updated = service.updateCompaniesFromIndicePa(Optional.empty());
+    log.info("Fine aggiornamento enti da IndicePA, aggiornati {} enti", updated);
   }
 
 }

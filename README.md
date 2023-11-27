@@ -29,6 +29,7 @@ L'OpenAPI del servizio di devel è disponibile all'indirizzo https://dica33.ba.c
 I servizi saranno estesi per coprire tutte le funzionalità necessarie al crawling ed elaborazione dei siti web
 delle PA Italiane.
 
+L'aggiornamento dei dati locali al servizio Publis Sites Service tramite IndicePA avviene ogni mattina alle 6:30.
 
 ## 👏 Come Contribuire 
 
