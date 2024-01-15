@@ -96,6 +96,8 @@ public class CompanyController {
       @RequestParam("denominazioneEnte") Optional<String> denominazioneEnte,
       @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}") 
       Pageable pageable) {
+	codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
+			Optional.empty() : codiceCategoria;
     val companies = 
         companyDao.findAllActive(codiceCategoria, codiceFiscaleEnte, codiceIpa, 
             denominazioneEnte, pageable)
