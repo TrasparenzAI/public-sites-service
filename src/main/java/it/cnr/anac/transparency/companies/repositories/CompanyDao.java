@@ -38,7 +38,7 @@ public class CompanyDao {
   
   public Page<Company> findAllActive(
       Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
-      Optional<String> codiceIpa, Optional<String> denominazioneEnte, Pageable pageable) {
+      Optional<String> codiceIpa, Optional<String> denominazioneEnte, Optional<Long> idIpaFrom, Pageable pageable) {
     QCompany company = QCompany.company;
     BooleanBuilder builder = new BooleanBuilder(company.dataCancellazione.isNull());
     if (codiceCategoria.isPresent()) {
@@ -52,6 +52,9 @@ public class CompanyDao {
     }
     if (denominazioneEnte.isPresent()) {
       builder.and(company.denominazioneEnte.containsIgnoreCase(denominazioneEnte.get()));
+    }
+    if (idIpaFrom.isPresent()) {
+      builder.and(company.id.gt(idIpaFrom.get()));
     }
     return repo.findAll(builder.getValue(), pageable);
   }
