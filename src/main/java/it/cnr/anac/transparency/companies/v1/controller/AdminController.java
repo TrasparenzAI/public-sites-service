@@ -32,6 +32,7 @@ import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -68,7 +69,7 @@ public class AdminController {
       @ApiResponse(responseCode = "200", 
           description = "Numero degli enti presenti in IndicePA aggiornati all'interno del servizio.")
   })
-  @GetMapping("/updateIndicePaCompanies")
+  @PostMapping("/updateIndicePaCompanies")
   public ResponseEntity<Integer> updateIndicePaCompanies(
       @RequestParam(name = "updatedFrom") Optional<LocalDate> updatedFrom) {
     log.info("Aggiornamento enti utilizzando i dati dell'indicePA, con data aggiornamento a "

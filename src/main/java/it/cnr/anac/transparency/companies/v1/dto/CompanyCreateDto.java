@@ -43,5 +43,23 @@ public class CompanyCreateDto {
   private String sitoIstituzionale;
   private CompanySource sorgente;
   private LocalDate dataAggiornamento;
+  private String codiceComuneIstat;
+  private String codiceCastaleComune;
+  private String cap;
+  private String indirizzo;
 
+  private String nomeResponsabile;
+  private String cognomeResponsabile;
+  private String titoloResponsabile;
+
+  private String mail1;
+  private String tipoMail1;
+  private String mail2;
+  private String tipoMail2;
+  private String mail3;
+  private String tipoMail3;
+  private String mail4;
+  private String tipoMail4;
+  private String mail5;
+  private String tipoMail5;
 }
