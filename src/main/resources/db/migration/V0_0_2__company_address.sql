@@ -1,0 +1,4 @@
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS codice_comune_istat TEXT;
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS codice_castale_comune TEXT;
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS cap TEXT;
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS indirizzo TEXT;

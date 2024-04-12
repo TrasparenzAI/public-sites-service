@@ -50,4 +50,40 @@ public class EnteDto {
   @JsonProperty("Data_aggiornamento")
   private LocalDate dataAggiornamento;
 
+  @JsonProperty("Codice_Comune_Istat")
+  private String codiceComuneIstat;
+  @JsonProperty("Codice_catastale_comune")
+  private String codiceCastaleComune;
+  @JsonProperty("CAP")
+  private String cap;
+  @JsonProperty("Indirizzo")
+  private String indirizzo;
+
+  @JsonProperty("Nome_responsabile")
+  private String nomeResponsabile;
+  @JsonProperty("Cognome_responsabile")
+  private String cognomeResponsabile;
+  @JsonProperty("Titolo_responsabile")
+  private String titoloResponsabile;
+
+  @JsonProperty("Mail1")
+  private String mail1;
+  @JsonProperty("Tipo_Mail1")
+  private String tipoMail1;
+  @JsonProperty("Mail2")
+  private String mail2;
+  @JsonProperty("Tipo_Mail2")
+  private String tipoMail2;
+  @JsonProperty("Mail3")
+  private String mail3;
+  @JsonProperty("Tipo_Mail3")
+  private String tipoMail3;
+  @JsonProperty("Mail4")
+  private String mail4;
+  @JsonProperty("Tipo_Mail4")
+  private String tipoMail4;
+  @JsonProperty("Mail5")
+  private String mail5;
+  @JsonProperty("Tipo_Mail5")
+  private String tipoMail5;
 }

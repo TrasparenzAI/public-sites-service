@@ -164,6 +164,26 @@ public class IndicePaService {
         && Objects.equals(company.getCodiceNatura(), companyDto.getCodiceNatura())
         && Objects.equals(company.getDenominazioneEnte(), companyDto.getDenominazioneEnte())
         && Objects.equals(company.getSitoIstituzionale(), companyDto.getSitoIstituzionale())
-        && Objects.equals(company.getTipologia(), companyDto.getTipologia());
+        && Objects.equals(company.getTipologia(), companyDto.getTipologia())
+
+        && Objects.equals(company.getCodiceComuneIstat(), companyDto.getCodiceComuneIstat())
+        && Objects.equals(company.getCodiceCastaleComune(), companyDto.getCodiceCastaleComune())
+        && Objects.equals(company.getCap(), companyDto.getCap())
+        && Objects.equals(company.getIndirizzo(), companyDto.getIndirizzo())
+
+        && Objects.equals(company.getNomeResponsabile(), companyDto.getNomeResponsabile())
+        && Objects.equals(company.getCognomeResponsabile(), companyDto.getCognomeResponsabile())
+        && Objects.equals(company.getTitoloResponsabile(), companyDto.getTitoloResponsabile())
+
+        && Objects.equals(company.getMail1(), companyDto.getMail1())
+        && Objects.equals(company.getTipoMail1(), companyDto.getTipoMail1())
+        && Objects.equals(company.getMail2(), companyDto.getMail2())
+        && Objects.equals(company.getTipoMail2(), companyDto.getTipoMail2())
+        && Objects.equals(company.getMail3(), companyDto.getMail3())
+        && Objects.equals(company.getTipoMail3(), companyDto.getTipoMail3())
+        && Objects.equals(company.getMail4(), companyDto.getMail4())
+        && Objects.equals(company.getTipoMail4(), companyDto.getTipoMail4())
+        && Objects.equals(company.getMail5(), companyDto.getMail5())
+        && Objects.equals(company.getTipoMail5(), companyDto.getTipoMail5());
   }
 }

@@ -17,6 +17,7 @@
 
 package it.cnr.anac.transparency.companies.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -50,4 +51,34 @@ public class Company extends MutableModel {
   @Enumerated(EnumType.STRING)
   private CompanySource sorgente;
   private LocalDate dataCancellazione;
+
+  private String codiceComuneIstat;
+  private String codiceCastaleComune;
+  private String cap;
+  private String indirizzo;
+
+  private String nomeResponsabile;
+  private String cognomeResponsabile;
+  private String titoloResponsabile;
+
+  @Column(name="mail_1")
+  private String mail1;
+  @Column(name="tipo_mail_1")
+  private String tipoMail1;
+  @Column(name="mail_2")
+  private String mail2;
+  @Column(name="tipo_mail_2")
+  private String tipoMail2;
+  @Column(name="mail_3")
+  private String mail3;
+  @Column(name="tipo_mail_3")
+  private String tipoMail3;
+  @Column(name="mail_4")
+  private String mail4;
+  @Column(name="tipo_mail_4")
+  private String tipoMail4;
+  @Column(name="mail_5")
+  private String mail5;
+  @Column(name="tipo_mail_5")
+  private String tipoMail5;
 }
