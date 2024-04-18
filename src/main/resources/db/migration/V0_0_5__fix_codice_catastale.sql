@@ -1,0 +1,1 @@
+ALTER TABLE companies RENAME COLUMN codice_castale_comune TO codice_catastale_comune;

@@ -14,41 +14,34 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.models;
+package it.cnr.anac.transparency.companies.v1.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.ToString;
 
-import lombok.Getter;
-import lombok.Setter;
+@ToString
+@Data
+public class MunicipalityShowDto {
 
-/**
- * Una entity con data di creazione e di ultima modifica.
- *
- */
-@Getter
-@Setter
-@MappedSuperclass
-public abstract class MutableModel extends BaseEntity {
+  private Long id;
 
-  private static final long serialVersionUID = 4890911962768274977L;
+  private String codiceRegione;
+  private String denominazione;
+  private String denominazioneAltraLingua;
+  private String codiceRipartizioneGeografica;
+  private String ripartizioneGeografica;
+  private String denominazioneRegione;
+  private String denominazioneUnitaSovracomunale; //di solito la provincia
+  //Flag Comune capoluogo di provincia/città metropolitana/libero consorzio
+  private Boolean capoluogo;
+  private String siglaAutomobilistica;
+  private String codiceComune;
+  private String codiceCatastale;
 
-  @Column(name = "created_at")
+  private LocalDate dataCancellazione;
   private LocalDateTime createdAt;
-
-  @Column(name = "updated_at")
   private LocalDateTime updatedAt;
-
-  @PrePersist
-  @PreUpdate
-  private void onUpdate() {
-    updatedAt = LocalDateTime.now();
-    if (createdAt == null) {
-      createdAt = updatedAt;
-    }
-  }
 
 }

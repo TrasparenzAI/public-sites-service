@@ -167,7 +167,7 @@ public class IndicePaService {
         && Objects.equals(company.getTipologia(), companyDto.getTipologia())
 
         && Objects.equals(company.getCodiceComuneIstat(), companyDto.getCodiceComuneIstat())
-        && Objects.equals(company.getCodiceCastaleComune(), companyDto.getCodiceCastaleComune())
+        && Objects.equals(company.getCodiceCatastaleComune(), companyDto.getCodiceCatastaleComune())
         && Objects.equals(company.getCap(), companyDto.getCap())
         && Objects.equals(company.getIndirizzo(), companyDto.getIndirizzo())
 

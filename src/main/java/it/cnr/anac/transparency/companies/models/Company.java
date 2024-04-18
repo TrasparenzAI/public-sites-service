@@ -21,6 +21,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import lombok.Data;
@@ -52,8 +54,12 @@ public class Company extends MutableModel {
   private CompanySource sorgente;
   private LocalDate dataCancellazione;
 
+  @ManyToOne
+  @JoinColumn(name = "municipality_id")
+  private Municipality comune;
+
   private String codiceComuneIstat;
-  private String codiceCastaleComune;
+  private String codiceCatastaleComune;
   private String cap;
   private String indirizzo;
 

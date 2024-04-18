@@ -14,9 +14,9 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.indicepa;
+package it.cnr.anac.transparency.companies.municipalities;
 
-import java.util.Optional;
+import java.io.IOException;
 import javax.inject.Inject;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -25,16 +25,16 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class PeriodicUpdateIndicePaTask {
+public class PeriodicUpdateIstatMunicipalitiesTask {
 
   @Inject
-  IndicePaService service;
+  MunicipalityService service;
 
-  @Scheduled(cron = "0 30 06 ? * *")
-  public void updateIndicePaCompanies() {
-    log.info("Avvio aggiornamento degli enti da IndicePA");
-    val updated = service.updateCompaniesFromIndicePa(Optional.empty());
-    log.info("Fine aggiornamento enti da IndicePA, aggiornati {} enti", updated);
+  @Scheduled(cron = "0 40 06 ? * *")
+  public void updateIstatMunicipalities() throws IOException {
+    log.info("Avvio aggiornamento dei comuni da Istat");
+    val updated = service.updateMunicipalitiesFromIstat();
+    log.info("Fine aggiornamento comuni da Istat, aggiornati {} comuni", updated);
   }
 
 }
