@@ -30,6 +30,7 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 /**
  * Repository per l'accesso ai dati delle Company.
  *
+ * @author Cristian Lucchesi
  */
 public interface CompanyRepository  extends JpaRepository<Company,Long>, QuerydslPredicateExecutor<Company>{
 
@@ -45,4 +46,6 @@ public interface CompanyRepository  extends JpaRepository<Company,Long>, Queryds
   @Query("SELECT c FROM Company c WHERE c.comune is null")
   public List<Company> findWithoutMunicipality();
 
+  @Query("SELECT c FROM Company c WHERE c.address is null")
+  public List<Company> findWithoutAddress();
 }

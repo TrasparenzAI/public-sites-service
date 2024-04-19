@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 /**
  * DAO per le ricerche sulle Municipality.
  *
+ * @author Cristian Lucchesi
  */
 @RequiredArgsConstructor
 @Component

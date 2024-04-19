@@ -21,12 +21,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.cnr.anac.transparency.companies.CompanyService;
 import it.cnr.anac.transparency.companies.geo.GeoService;
+import it.cnr.anac.transparency.companies.geo.OpenstreetMapAddressDto;
 import it.cnr.anac.transparency.companies.indicepa.IndicePaService;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityCsvDto;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityService;
+import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.v1.ApiRoutes;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.NotNull;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -37,6 +43,7 @@ import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,6 +59,8 @@ public class AdminController {
   private final IndicePaService indicePaService;
   private final MunicipalityService municipalityService;
   private final GeoService geoService;
+  private final CompanyService companyService;
+  private final CompanyRepository companyRepository;
 
   @Operation(
       summary = "Visualizzazione di tutti gli enti presenti in IndicePA.",
@@ -131,4 +140,38 @@ public class AdminController {
     return ResponseEntity.ok(municipalitiesUpdated);
   }
 
+  @Operation(
+      summary = "Visualizzazione di tutti gli enti presenti in IndicePA.",
+      description = "Il servizio effettua una chiamata agli OpenData di IndicePA e li presenta"
+          + " come info json")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Restitutita la lista delle geolocalizzazioni dell'ente pubblico.")
+  })
+  @GetMapping("/geoCompanyAddresses" + ApiRoutes.SHOW)
+  public ResponseEntity<List<OpenstreetMapAddressDto>> geoCompanyAddress(
+      @NotNull @PathVariable("id") Long id) {
+    val company = companyRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + id));
+    val addresses = geoService.getGeoAddresses(company);
+    return ResponseEntity.ok(addresses);
+  }
+
+  @GetMapping("/geoCompanyAddress" + ApiRoutes.SHOW)
+  public ResponseEntity<Optional<OpenstreetMapAddressDto>> geoCompanyAddresses(
+      @NotNull @PathVariable("id") Long id) {
+    val company = companyRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + id));
+    val addresses = geoService.getBestMatchingGeoAddress(company);
+    return ResponseEntity.ok(addresses);
+  }
+  
+  @PostMapping("/updateCompanyAddresses")
+  public ResponseEntity<Integer> updateCompanyAddresses(
+      @RequestParam(name = "limit") Optional<Integer> limit) {
+    log.info("Geolocalizzazione indirizzi degli enti utilizzando Nominatim di OSM, con limite ",
+        limit);
+    val companiesUpdated = companyService.geolocalizeCompanies(limit);
+    return ResponseEntity.ok(limit.orElse(companiesUpdated));
+  }
 }

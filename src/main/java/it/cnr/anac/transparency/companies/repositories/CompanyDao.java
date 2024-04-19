@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 /**
  * DAO per le ricerche sulle Company.
  *
+ * @author Cristian Lucchesi
  */
 @RequiredArgsConstructor
 @Component

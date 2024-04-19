@@ -55,7 +55,7 @@ public class IndicePaService {
    */
   public List<CompanyShowDto> getCompaniesFromIndicePa(Optional<Integer> limit) {
     String indicePaSql = 
-        String.format("SELECT * from \"d09adf99-dc10-4349-8c53-27b1e5aa97b6\"", indicePaResourceId);
+        String.format("SELECT * from \"%s\"", indicePaResourceId);
 
     if (limit.isPresent()) {
       indicePaSql += String.format(" LIMIT %d", limit.get());

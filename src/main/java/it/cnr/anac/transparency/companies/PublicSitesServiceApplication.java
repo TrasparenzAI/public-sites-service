@@ -25,6 +25,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /**
  * Classe per l'avvio del servizio tramite Spring Boot.
  *
+ * @author Cristian Lucchesi
  */
 @EnableScheduling
 @EnableFeignClients

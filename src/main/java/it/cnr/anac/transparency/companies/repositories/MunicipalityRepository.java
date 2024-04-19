@@ -28,6 +28,7 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 /**
  * Repository per l'accesso ai dati dei comuni.
  *
+ * @author Cristian Lucchesi
  */
 public interface MunicipalityRepository  extends JpaRepository<Municipality,Long>, QuerydslPredicateExecutor<Municipality>{
 

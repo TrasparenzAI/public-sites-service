@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -14,11 +14,11 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package it.cnr.anac.transparency.companies.v1.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -31,6 +31,10 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class CompanyShowDto extends CompanyUpdateDto {
+
+  private String denominazioneComune;
+  private String denominazioneUnitaSovracomunale;
+  private String denominazioneRegione;
 
   private LocalDate dataCancellazione;
   private LocalDateTime createdAt;

@@ -14,33 +14,23 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.models;
+package it.cnr.anac.transparency.companies.geo;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import java.util.List;
 
-@Entity
-@Table(name = "addresses")
-@ToString
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class Address extends MutableModel {
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-  private static final long serialVersionUID = -5643536799280572510L;
+/**
+ * Client feign per la ricerca e geolocalizzazione degli indirizzi.
+ *
+ * @author Cristian Lucchesi
+ */
+@FeignClient(name = "nominatim-client", url = "${transparency.nominatim.url}")
+public interface NominatimClient {
 
-  private String addressType;
-  private String category;
-  private String name;
-  private String displayName;
-  private String latitude;
-  private String longitude;
-  private Integer osmId;
-  private String osmType;
-  @Column(name = "osm_address_type")
-  private String type;
+  @GetMapping("/search?format=jsonv2")
+  List<OpenstreetMapAddressDto> searchAddress(@RequestParam(name="q") String q);
 
 }

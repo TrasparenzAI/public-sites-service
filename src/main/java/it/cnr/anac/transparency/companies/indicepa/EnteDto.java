@@ -53,7 +53,7 @@ public class EnteDto {
   @JsonProperty("Codice_Comune_Istat")
   private String codiceComuneIstat;
   @JsonProperty("Codice_catastale_comune")
-  private String codiceCastaleComune;
+  private String codiceCatastaleComune;
   @JsonProperty("CAP")
   private String cap;
   @JsonProperty("Indirizzo")

@@ -14,33 +14,22 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.models;
+package it.cnr.anac.transparency.companies.repositories;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import java.util.Optional;
 
-@Entity
-@Table(name = "addresses")
-@ToString
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class Address extends MutableModel {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
-  private static final long serialVersionUID = -5643536799280572510L;
+import it.cnr.anac.transparency.companies.models.Address;
 
-  private String addressType;
-  private String category;
-  private String name;
-  private String displayName;
-  private String latitude;
-  private String longitude;
-  private Integer osmId;
-  private String osmType;
-  @Column(name = "osm_address_type")
-  private String type;
+/**
+ * Repository per l'accesso ai dati degli indirizzi.
+ *
+ * @author Cristian Lucchesi
+ */
+public interface AddressRepository  extends JpaRepository<Address,Long>, QuerydslPredicateExecutor<Address>{
+
+  public Optional<Address> findById(Long id);
 
 }

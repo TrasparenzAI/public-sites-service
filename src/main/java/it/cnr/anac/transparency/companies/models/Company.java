@@ -14,8 +14,9 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package it.cnr.anac.transparency.companies.models;
+
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,8 +24,9 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
+import jakarta.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -32,6 +34,7 @@ import lombok.ToString;
 /**
  * Entity che rappresenta i dati di un Ente pubblico.
  *
+ * @author Cristian Lucchesi
  */
 @ToString
 @Data
@@ -57,6 +60,9 @@ public class Company extends MutableModel {
   @ManyToOne
   @JoinColumn(name = "municipality_id")
   private Municipality comune;
+
+  @OneToOne
+  private Address address;
 
   private String codiceComuneIstat;
   private String codiceCatastaleComune;
@@ -87,4 +93,20 @@ public class Company extends MutableModel {
   private String mail5;
   @Column(name="tipo_mail_5")
   private String tipoMail5;
+
+  @Transient
+  public String getDenominazioneComune() {
+    return comune != null ? comune.getDenominazione() : null;
+  }
+
+  @Transient
+  public String getDenominazioneUnitaSovracomunale() {
+    return comune != null ? comune.getDenominazioneUnitaSovracomunale() : null;
+  }
+
+  @Transient
+  public String getDenominazioneRegione() {
+    return comune != null ? comune.getDenominazioneRegione() : null;
+  }
+
 }
