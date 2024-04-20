@@ -14,36 +14,18 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.geo;
+package it.cnr.anac.transparency.companies.v1.dto;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.List;
+import org.mapstruct.Mapper;
 
-import lombok.Data;
-import lombok.ToString;
+import it.cnr.anac.transparency.companies.models.Address;
 
 /**
- * DTO con le informazioni che derivano dalle ricerche tramite Nominatim di OpenstreetMap.
- *
- * @author Cristian Lucchesi
+ * Mapping dei dati delle Entity nei rispettivi DTO.
  */
-@ToString
-@Data
-public class OpenstreetMapAddressDto {
+@Mapper(componentModel = "spring")
+public interface AddressDtoMapper {
 
-  private String addresstype;
-  private String category;
-  private String name;
-  private String display_name;
-  private String lat;
-  private String lon;
-  private BigInteger osm_id;
-  private String osm_type;
-  private BigInteger place_id;
-  private BigInteger place_rank;
-  private BigDecimal importance;
-  private String type;
-  private List<String> boundinginbox;
+  AddressShowDto convert(Address company);
 
 }

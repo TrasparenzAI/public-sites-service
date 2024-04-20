@@ -30,6 +30,7 @@ import it.cnr.anac.transparency.companies.models.Address;
 public interface AddressMapper {
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(source = "addresstype", target = "addressType")
   @Mapping(source = "display_name", target = "displayName")
   @Mapping(source = "lat", target = "latitude")
   @Mapping(source = "lon", target = "longitude")

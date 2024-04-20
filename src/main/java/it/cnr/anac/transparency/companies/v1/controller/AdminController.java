@@ -141,12 +141,12 @@ public class AdminController {
   }
 
   @Operation(
-      summary = "Visualizzazione di tutti gli enti presenti in IndicePA.",
-      description = "Il servizio effettua una chiamata agli OpenData di IndicePA e li presenta"
-          + " come info json")
+      summary = "Visualizzazione di tutte le geolocalizzazioni del indirizzo dell'ente, "
+          + "trovate tramite OpenstreetMap.",
+      description = "Il servizio effettua una chiamata al servizio Nominatim di OSM.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
-          description = "Restitutita la lista delle geolocalizzazioni dell'ente pubblico.")
+          description = "Restitutita la lista delle geolocalizzazioni dell'indirizzo dell'ente.")
   })
   @GetMapping("/geoCompanyAddresses" + ApiRoutes.SHOW)
   public ResponseEntity<List<OpenstreetMapAddressDto>> geoCompanyAddress(
@@ -157,6 +157,14 @@ public class AdminController {
     return ResponseEntity.ok(addresses);
   }
 
+  @Operation(
+      summary = "Visualizzazione della geolicalizzazione con la maggiore 'importanceì tra le possibile "
+          + "geolocalizzazioni del indirizzo dell'ente trovate tramite OpenstreetMap.",
+      description = "Il servizio effettua una chiamata al servizio Nominatim di OSM.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Restitutita la geocalizzazione dell'indirizzo dell'ente.")
+  })
   @GetMapping("/geoCompanyAddress" + ApiRoutes.SHOW)
   public ResponseEntity<Optional<OpenstreetMapAddressDto>> geoCompanyAddresses(
       @NotNull @PathVariable("id") Long id) {
@@ -165,13 +173,21 @@ public class AdminController {
     val addresses = geoService.getBestMatchingGeoAddress(company);
     return ResponseEntity.ok(addresses);
   }
-  
+
+  @Operation(
+      summary = "Aggiornamento della geolocalizzazione deli enti presenti nel servizio tramite Nominatim di OSM.",
+      description = "Aggiorna gli indirizzi degli enti geolocalizzandoli tramite il servizio Nominatm di OpenStreetMap.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Numero degli enti presenti di cui è stata aggiornata la geolocalizzazione.")
+  })
   @PostMapping("/updateCompanyAddresses")
   public ResponseEntity<Integer> updateCompanyAddresses(
       @RequestParam(name = "limit") Optional<Integer> limit) {
-    log.info("Geolocalizzazione indirizzi degli enti utilizzando Nominatim di OSM, con limite ",
+    log.info("Geolocalizzazione indirizzi degli enti utilizzando Nominatim di OSM, con limite {}",
         limit);
     val companiesUpdated = companyService.geolocalizeCompanies(limit);
+    log.info("Terminata la geolocalizzazione di {} indirizzi degli enti pubblici.", companiesUpdated);
     return ResponseEntity.ok(limit.orElse(companiesUpdated));
   }
 }

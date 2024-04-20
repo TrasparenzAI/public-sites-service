@@ -18,7 +18,6 @@ package it.cnr.anac.transparency.companies.geo;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -65,23 +64,20 @@ public class GeoService {
   }
 
   public List<OpenstreetMapAddressDto> getGeoAddresses(Company company) {
-    if (company.getIndirizzo() == null || company.getComune() == null) {
+    if (company.getIndirizzo() == null || company.getComune() == null 
+        || company.getComune().getDenominazione() == null) {
       return Lists.newArrayList();
     }
     return geoClient.searchAddress(
         String.format("%s, %s", company.getIndirizzo(), company.getComune().getDenominazione()));
   }
-  
+
   public Optional<OpenstreetMapAddressDto> getBestMatchingGeoAddress(Company company) {
     val addresses = getGeoAddresses(company);
     if (addresses.size() == 0) {
       return Optional.empty();
     }
-    if (addresses.size() == 1) {
-      return Optional.of(addresses.get(0));
-    }
-    val addressNotNode = addresses.stream().filter(a -> !a.getType().equals("node")).collect(Collectors.toList());
-    return Optional.of(addressNotNode.stream().max((a1, a2) -> a1.getPlace_rank().compareTo(a2.getPlace_rank())).get());
+    return Optional.of(addresses.stream().max((a1, a2) -> a1.getImportance().compareTo(a2.getImportance())).get());
   }
 
 }
