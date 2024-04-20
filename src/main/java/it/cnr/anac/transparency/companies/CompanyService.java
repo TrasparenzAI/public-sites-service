@@ -1,9 +1,26 @@
+/*
+ * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 package it.cnr.anac.transparency.companies;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 /*
  * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
  *
@@ -47,6 +64,10 @@ public class CompanyService {
   private final GeoService geoService;
   private final AddressMapper addressMapper; 
 
+
+  @Value("${transparency.geo.enabled}")
+  private Boolean geoEnabled;
+  
   public Integer geolocalizeCompanies(Optional<Integer> limit) {
     List<Company> companies = companyRepository.findWithoutAddress();
     if (limit.isPresent()) {
@@ -60,6 +81,8 @@ public class CompanyService {
         company.setAddress(address);
         companyRepository.save(company);
         log.info("Impostato indirizzo a {}", company);
+      } else {
+        log.warn("Geolocalizzazione indirizzo non riuscita per {}", company);
       }
     });
     return companies.size();
@@ -71,11 +94,15 @@ public class CompanyService {
   public Company createCompany(CompanyCreateDto companyDto) {
     Company company = new Company();
     companyMapper.update(company, companyDto);
-    val geoAddress = geoService.getBestMatchingGeoAddress(company);
-    if (geoAddress.isPresent()) {
-      val address = addressMapper.convert(geoAddress.get());
-      addressRepository.save(address);
-      company.setAddress(address);
+    if (geoEnabled) {
+      val geoAddress = geoService.getBestMatchingGeoAddress(company);
+      if (geoAddress.isPresent()) {
+        val address = addressMapper.convert(geoAddress.get());
+        addressRepository.save(address);
+        company.setAddress(address);
+      } else {
+        log.warn("Geolocalizzazione indirizzo non riuscita per {}", company);
+      }
     }
     return company;
   }
@@ -87,11 +114,15 @@ public class CompanyService {
     Verify.verifyNotNull(company);
     Verify.verifyNotNull(companyDto);
     companyMapper.update(company, companyDto);
-    val geoAddress = geoService.getBestMatchingGeoAddress(company);
-    if (geoAddress.isPresent()) {
-      val address = addressMapper.convert(geoAddress.get());
-      addressRepository.save(address);
-      company.setAddress(address);
+    if (geoEnabled) {
+      val geoAddress = geoService.getBestMatchingGeoAddress(company);
+      if (geoAddress.isPresent()) {
+        val address = addressMapper.convert(geoAddress.get());
+        addressRepository.save(address);
+        company.setAddress(address);
+      } else {
+        log.warn("Geolocalizzazione indirizzo non riuscita per {}", company);
+      }
     }
     return company;
   }

@@ -26,7 +26,7 @@ import lombok.val;
   externalDocs =  
     @ExternalDocumentation(
         description = "Mappa Leaflet Pubbliche Amministrazioni Italiane.", 
-        url = "../../map.html"))
+        url = "../map.html"))
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(ApiRoutes.BASE_PATH + "/geo")
