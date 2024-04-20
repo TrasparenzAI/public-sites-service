@@ -16,30 +16,9 @@
  */
 package it.cnr.anac.transparency.companies.v1.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import it.cnr.anac.transparency.companies.repositories.CompanyDao;
-import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
-import it.cnr.anac.transparency.companies.utils.DtoToEntityConverter;
-import it.cnr.anac.transparency.companies.v1.ApiRoutes;
-import it.cnr.anac.transparency.companies.v1.dto.AddressDtoMapper;
-import it.cnr.anac.transparency.companies.v1.dto.AddressShowDto;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyCreateDto;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyUpdateDto;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -54,6 +33,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import it.cnr.anac.transparency.companies.CompanyService;
+import it.cnr.anac.transparency.companies.repositories.CompanyDao;
+import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
+import it.cnr.anac.transparency.companies.v1.ApiRoutes;
+import it.cnr.anac.transparency.companies.v1.dto.AddressDtoMapper;
+import it.cnr.anac.transparency.companies.v1.dto.AddressShowDto;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyCreateDto;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyUpdateDto;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
+
 @Tag(name = "Company Controller", description = "Gestione delle informazioni degli Enti")
 @Slf4j
 @RequiredArgsConstructor
@@ -65,7 +67,7 @@ public class CompanyController {
   private final CompanyDao companyDao;
   private final CompanyMapper mapper;
   private final AddressDtoMapper addressMapper;
-  private final DtoToEntityConverter dtoToEntityConverter;
+  private final CompanyService companyService;
 
   @Operation(
       summary = "Visualizzazione delle informazioni di un ente.")
@@ -141,7 +143,7 @@ public class CompanyController {
   @PutMapping(ApiRoutes.CREATE)
   public ResponseEntity<CompanyShowDto> create(@NotNull @Valid @RequestBody CompanyCreateDto companyDto) {
     log.debug("CompanyController::create companyDto = {}", companyDto);
-    val company = dtoToEntityConverter.createEntity(companyDto);
+    val company = companyService.createCompany(companyDto);
     companyRepository.save(company);
     log.info("Creato Ente {}", company);
     return ResponseEntity.status(HttpStatus.CREATED).body(mapper.convert(company));
@@ -156,10 +158,12 @@ public class CompanyController {
   @PostMapping(ApiRoutes.UPDATE)
   public ResponseEntity<CompanyShowDto> update(@NotNull @Valid @RequestBody CompanyUpdateDto companyDto) {
     log.debug("CompanyController::update personDto = {}", companyDto);
-    val commpany = dtoToEntityConverter.updateEntity(companyDto);
-    companyRepository.save(commpany);
-    log.info("Aggiornato Ente, i nuovi dati sono {}", commpany);
-    return ResponseEntity.ok().body(mapper.convert(commpany));
+    var company = companyRepository.findById(companyDto.getId())
+        .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + companyDto.getId()));
+    companyService.updateCompany(company, companyDto);
+    companyRepository.save(company);
+    log.info("Aggiornato Ente, i nuovi dati sono {}", company);
+    return ResponseEntity.ok().body(mapper.convert(company));
   }
 
   @Operation(
