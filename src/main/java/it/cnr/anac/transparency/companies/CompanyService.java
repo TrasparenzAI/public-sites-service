@@ -67,9 +67,12 @@ public class CompanyService {
 
   @Value("${transparency.geo.enabled}")
   private Boolean geoEnabled;
-  
-  public Integer geolocalizeCompanies(Optional<Integer> limit) {
+
+  public Integer geolocalizeCompanies(Optional<Integer> limit, Optional<Integer> skip) {
     List<Company> companies = companyRepository.findWithoutAddress();
+    if (skip.isPresent()) {
+      companies = companies.stream().skip(skip.get()).collect(Collectors.toList());
+    }
     if (limit.isPresent()) {
       companies = companies.stream().limit(limit.get()).collect(Collectors.toList());
     }
