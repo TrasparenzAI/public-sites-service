@@ -22,11 +22,16 @@ import java.util.stream.Collectors;
  */
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Verify;
+
 import it.cnr.anac.transparency.companies.geo.AddressMapper;
 import it.cnr.anac.transparency.companies.geo.GeoService;
 import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.repositories.AddressRepository;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyCreateDto;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyUpdateDto;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +43,7 @@ public class CompanyService {
   
   private final CompanyRepository companyRepository;
   private final AddressRepository addressRepository;
+  private final CompanyMapper companyMapper;
   private final GeoService geoService;
   private final AddressMapper addressMapper; 
 
@@ -57,5 +63,36 @@ public class CompanyService {
       }
     });
     return companies.size();
+  }
+
+  /**
+   * Crea una nuova Entity Company a partire dai dati del DTO.
+   */
+  public Company createCompany(CompanyCreateDto companyDto) {
+    Company company = new Company();
+    companyMapper.update(company, companyDto);
+    val geoAddress = geoService.getBestMatchingGeoAddress(company);
+    if (geoAddress.isPresent()) {
+      val address = addressMapper.convert(geoAddress.get());
+      addressRepository.save(address);
+      company.setAddress(address);
+    }
+    return company;
+  }
+
+  /**
+   * Aggiorna l'entity riferita dal DTO con i dati passati.
+   */
+  public Company updateCompany(Company company, CompanyUpdateDto companyDto) {
+    Verify.verifyNotNull(company);
+    Verify.verifyNotNull(companyDto);
+    companyMapper.update(company, companyDto);
+    val geoAddress = geoService.getBestMatchingGeoAddress(company);
+    if (geoAddress.isPresent()) {
+      val address = addressMapper.convert(geoAddress.get());
+      addressRepository.save(address);
+      company.setAddress(address);
+    }
+    return company;
   }
 }

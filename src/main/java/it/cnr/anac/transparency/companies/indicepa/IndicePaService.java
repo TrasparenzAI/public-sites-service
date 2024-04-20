@@ -17,6 +17,7 @@
 
 package it.cnr.anac.transparency.companies.indicepa;
 
+import it.cnr.anac.transparency.companies.CompanyService;
 import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.models.CompanySource;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
@@ -49,6 +50,7 @@ public class IndicePaService {
   private final IndicePaClient indicePaClient;
   private final CompanyMapper mapper;
   private final CompanyRepository repo;
+  private final CompanyService companyService;
 
   /**
    * @return la lista delle aziende pubbliche presenti nel IndicePA
@@ -117,9 +119,8 @@ public class IndicePaService {
   private int insertCompanies(List<CompanyShowDto> companies) {
     int companyInserted = 0;
     for (CompanyShowDto companyDto : companies) {
-      Company company = new Company();
+      val company = companyService.createCompany(companyDto);
       company.setSorgente(CompanySource.indicePA);
-      mapper.update(company, companyDto);
       repo.save(company);
       companyInserted++;
       log.info("Inserito nuovo ente pubblico da indice PA -> {}", company);
@@ -135,7 +136,7 @@ public class IndicePaService {
             .orElseThrow(() -> new RuntimeException(
                 String.format("Ente pubblico non trovato con codiceIPA %s", companyDto.getCodiceIpa())));
       if (!areEqual(company, companyDto)) {
-        mapper.update(company, companyDto);
+        company = companyService.updateCompany(company, companyDto);
         repo.save(company);
         log.info("Aggiornato ente pubblico da indice PA -> {}", company);
         companyUpdated++;
