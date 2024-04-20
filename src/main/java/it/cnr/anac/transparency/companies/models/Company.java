@@ -36,7 +36,7 @@ import lombok.ToString;
  *
  * @author Cristian Lucchesi
  */
-@ToString
+@ToString(callSuper = true)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "companies")

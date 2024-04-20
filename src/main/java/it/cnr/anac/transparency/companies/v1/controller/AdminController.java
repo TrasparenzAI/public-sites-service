@@ -183,10 +183,11 @@ public class AdminController {
   })
   @PostMapping("/updateCompanyAddresses")
   public ResponseEntity<Integer> updateCompanyAddresses(
-      @RequestParam(name = "limit") Optional<Integer> limit) {
-    log.info("Geolocalizzazione indirizzi degli enti utilizzando Nominatim di OSM, con limite {}",
-        limit);
-    val companiesUpdated = companyService.geolocalizeCompanies(limit);
+      @RequestParam(name = "limit") Optional<Integer> limit,
+      @RequestParam(name = "skip") Optional<Integer> skip) {
+    log.info("Geolocalizzazione indirizzi degli enti utilizzando Nominatim di OSM, con limite = {}, skip = {}",
+        limit, skip);
+    val companiesUpdated = companyService.geolocalizeCompanies(limit, skip);
     log.info("Terminata la geolocalizzazione di {} indirizzi degli enti pubblici.", companiesUpdated);
     return ResponseEntity.ok(limit.orElse(companiesUpdated));
   }

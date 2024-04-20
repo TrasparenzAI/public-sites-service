@@ -24,11 +24,13 @@ import java.time.LocalDateTime;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Una entity con data di creazione e di ultima modifica.
  *
  */
+@ToString(callSuper = true)
 @Getter
 @Setter
 @MappedSuperclass
