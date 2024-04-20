@@ -48,4 +48,7 @@ public interface CompanyRepository  extends JpaRepository<Company,Long>, Queryds
 
   @Query("SELECT c FROM Company c WHERE c.address is null")
   public List<Company> findWithoutAddress();
+  
+  @Query("SELECT c FROM Company c WHERE c.dataCancellazione IS NULL AND c.address IS NOT NULL")
+  public List<Company> findAllActiveWithAddress();
 }

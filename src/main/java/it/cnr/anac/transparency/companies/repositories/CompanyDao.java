@@ -60,4 +60,10 @@ public class CompanyDao {
     return repo.findAll(builder.getValue(), pageable);
   }
 
+  public Page<Company> findAllActiveWithAddress(Pageable pageable) {
+    QCompany company = QCompany.company;
+    BooleanBuilder builder = new BooleanBuilder(company.dataCancellazione.isNull());
+    builder.and(company.address.isNotNull());
+    return repo.findAll(builder.getValue(), pageable);
+  }
 }

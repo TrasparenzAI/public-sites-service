@@ -103,7 +103,7 @@ public class CompanyController {
 
   @Operation(
       summary = "Visualizzazione di tutti gli enti presenti nel sistema.",
-      description = "Le informazioni sono restituite paginte'.")
+      description = "Le informazioni sono restituite paginate'.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
           description = "Restitutita una pagina della lista degli enti presenti.")
