@@ -25,6 +25,8 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Configurazione dei parametri generali della documentazione
  * tramite OpenAPI.
+ *
+ * @author Cristian Lucchesi
  */
 @Configuration
 @OpenAPIDefinition(

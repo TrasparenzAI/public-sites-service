@@ -14,30 +14,45 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.v1.dto;
 
+package it.cnr.anac.transparency.companies.models;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * Data transfer object per le informazioni sulle Company.
+ * Entity che rappresenta i dati di un Ente pubblico.
  *
  */
 @ToString
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CompanyShowDto extends CompanyUpdateDto {
+@Table(name = "municipalities")
+@Entity
+public class Municipality extends MutableModel {
 
-  private String denominazioneComune;
-  private String denominazioneUnitaSovracomunale;
+  private static final long serialVersionUID = 6192591205971740773L;
+
+  private String codiceRegione;
+  @NotNull @NotEmpty
+  private String denominazione;
+  private String denominazioneAltraLingua;
+  private String codiceRipartizioneGeografica;
+  private String ripartizioneGeografica;
   private String denominazioneRegione;
+  private String denominazioneUnitaSovracomunale;
+  //Flag Comune capoluogo di provincia/città metropolitana/libero consorzio
+  private Boolean capoluogo;
+  private String siglaAutomobilistica;
+  private String codiceComune;
+  @NotNull @NotEmpty
+  private String codiceCatastale;
 
   private LocalDate dataCancellazione;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
-
 }

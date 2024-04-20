@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -17,9 +17,7 @@
 
 package it.cnr.anac.transparency.companies.repositories;
 
-import it.cnr.anac.transparency.companies.models.Company;
-import it.cnr.anac.transparency.companies.models.CompanySource;
-import java.util.List;
+import it.cnr.anac.transparency.companies.models.Municipality;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,27 +26,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 /**
- * Repository per l'accesso ai dati delle Company.
+ * Repository per l'accesso ai dati dei comuni.
  *
  * @author Cristian Lucchesi
  */
-public interface CompanyRepository  extends JpaRepository<Company,Long>, QuerydslPredicateExecutor<Company>{
+public interface MunicipalityRepository  extends JpaRepository<Municipality,Long>, QuerydslPredicateExecutor<Municipality>{
 
-  public Optional<Company> findById(Long id);
+  public Optional<Municipality> findById(Long id);
 
-  public Optional<Company> findByCodiceIpa(String codiceIpa);
-
-  public List<Company> findBySorgente(CompanySource companySource);
+  public Optional<Municipality> findByCodiceCatastale(String codiceCatastale);
 
   @Query("SELECT c FROM Company c WHERE c.dataCancellazione is null")
-  public Page<Company> findAllActive(Pageable page);
+  public Page<Municipality> findAllActive(Pageable page);
 
-  @Query("SELECT c FROM Company c WHERE c.comune is null")
-  public List<Company> findWithoutMunicipality();
-
-  @Query("SELECT c FROM Company c WHERE c.address is null")
-  public List<Company> findWithoutAddress();
-  
-  @Query("SELECT c FROM Company c WHERE c.dataCancellazione IS NULL AND c.address IS NOT NULL")
-  public List<Company> findAllActiveWithAddress();
 }

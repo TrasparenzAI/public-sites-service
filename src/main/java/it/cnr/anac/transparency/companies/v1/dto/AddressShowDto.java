@@ -16,28 +16,22 @@
  */
 package it.cnr.anac.transparency.companies.v1.dto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * Data transfer object per le informazioni sulle Company.
- *
- */
 @ToString
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class CompanyShowDto extends CompanyUpdateDto {
+public class AddressShowDto {
 
-  private String denominazioneComune;
-  private String denominazioneUnitaSovracomunale;
-  private String denominazioneRegione;
-
-  private LocalDate dataCancellazione;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  private Long id;
+  private String addressType;
+  private String category;
+  private String name;
+  private String displayName;
+  private String latitude;
+  private String longitude;
+  private Integer osmId;
+  private String osmType;
+  private String type;
 
 }

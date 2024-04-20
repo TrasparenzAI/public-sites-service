@@ -14,30 +14,23 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.v1.dto;
+package it.cnr.anac.transparency.companies.geo;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.List;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * Data transfer object per le informazioni sulle Company.
+ * Client feign per la ricerca e geolocalizzazione degli indirizzi.
  *
+ * @author Cristian Lucchesi
  */
-@ToString
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class CompanyShowDto extends CompanyUpdateDto {
+@FeignClient(name = "nominatim-client", url = "${transparency.nominatim.url}")
+public interface NominatimClient {
 
-  private String denominazioneComune;
-  private String denominazioneUnitaSovracomunale;
-  private String denominazioneRegione;
-
-  private LocalDate dataCancellazione;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  @GetMapping("/search?format=jsonv2")
+  List<OpenstreetMapAddressDto> searchAddress(@RequestParam(name="q") String q);
 
 }

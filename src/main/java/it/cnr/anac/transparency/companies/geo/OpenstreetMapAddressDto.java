@@ -14,30 +14,36 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.v1.dto;
+package it.cnr.anac.transparency.companies.geo;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.List;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * Data transfer object per le informazioni sulle Company.
+ * DTO con le informazioni che derivano dalle ricerche tramite Nominatim di OpenstreetMap.
  *
+ * @author Cristian Lucchesi
  */
 @ToString
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class CompanyShowDto extends CompanyUpdateDto {
+public class OpenstreetMapAddressDto {
 
-  private String denominazioneComune;
-  private String denominazioneUnitaSovracomunale;
-  private String denominazioneRegione;
-
-  private LocalDate dataCancellazione;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  private String addresstype;
+  private String category;
+  private String name;
+  private String display_name;
+  private String lat;
+  private String lon;
+  private BigInteger osm_id;
+  private String osm_type;
+  private BigInteger place_id;
+  private BigInteger place_rank;
+  private BigDecimal importance;
+  private String type;
+  private List<String> boundinginbox;
 
 }

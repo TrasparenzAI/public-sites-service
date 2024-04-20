@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,6 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package it.cnr.anac.transparency.companies.v1.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +26,8 @@ import it.cnr.anac.transparency.companies.repositories.CompanyDao;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.utils.DtoToEntityConverter;
 import it.cnr.anac.transparency.companies.v1.ApiRoutes;
+import it.cnr.anac.transparency.companies.v1.dto.AddressDtoMapper;
+import it.cnr.anac.transparency.companies.v1.dto.AddressShowDto;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyCreateDto;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
@@ -63,6 +64,7 @@ public class CompanyController {
   private final CompanyRepository companyRepository;
   private final CompanyDao companyDao;
   private final CompanyMapper mapper;
+  private final AddressDtoMapper addressMapper;
   private final DtoToEntityConverter dtoToEntityConverter;
 
   @Operation(
@@ -71,7 +73,7 @@ public class CompanyController {
       @ApiResponse(responseCode = "200", 
           description = "Restituiti i dati dell'ente."),
       @ApiResponse(responseCode = "404", 
-          description = "Ente non trovata con l'id fornito.",
+          description = "Ente non trovato con l'id fornito.",
           content = @Content)
   })
   @GetMapping(ApiRoutes.SHOW)
@@ -82,8 +84,26 @@ public class CompanyController {
   }
 
   @Operation(
+      summary = "Visualizzazione della geolocalizzazione dell'indirizzo di un ente.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Restituiti i dati della geolocalizzazione dell'indirizzo dell'ente."),
+      @ApiResponse(responseCode = "404", 
+          description = "Ente non trovato con l'id fornito, oppure indirizzo geolocalizzato non presente.",
+          content = @Content)
+  })
+  @GetMapping(ApiRoutes.SHOW + "/address")
+  public ResponseEntity<AddressShowDto> showAddress(@NotNull @PathVariable("id") Long id) {
+    val company = companyRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + id));
+    val address = Optional.ofNullable(company.getAddress())
+        .orElseThrow(() -> new EntityNotFoundException("Indirizzo non trovato per ente con id = " + id));
+    return ResponseEntity.ok().body(addressMapper.convert(address));
+  }
+
+  @Operation(
       summary = "Visualizzazione di tutti gli enti presenti nel sistema.",
-      description = "Le informazioni sono restituite paginte'.")
+      description = "Le informazioni sono restituite paginate'.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
           description = "Restitutita una pagina della lista degli enti presenti.")

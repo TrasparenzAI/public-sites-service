@@ -14,30 +14,33 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.v1.dto;
+package it.cnr.anac.transparency.companies.models;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * Data transfer object per le informazioni sulle Company.
- *
- */
+@Entity
+@Table(name = "addresses")
 @ToString
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CompanyShowDto extends CompanyUpdateDto {
+public class Address extends MutableModel {
 
-  private String denominazioneComune;
-  private String denominazioneUnitaSovracomunale;
-  private String denominazioneRegione;
+  private static final long serialVersionUID = -5643536799280572510L;
 
-  private LocalDate dataCancellazione;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  private String addressType;
+  private String category;
+  private String name;
+  private String displayName;
+  private String latitude;
+  private String longitude;
+  private Integer osmId;
+  private String osmType;
+  @Column(name = "osm_address_type")
+  private String type;
 
 }

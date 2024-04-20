@@ -14,30 +14,27 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.v1.dto;
+package it.cnr.anac.transparency.companies.municipalities;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.io.IOException;
+import javax.inject.Inject;
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+@Slf4j
+@Component
+public class PeriodicUpdateIstatMunicipalitiesTask {
 
-/**
- * Data transfer object per le informazioni sulle Company.
- *
- */
-@ToString
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class CompanyShowDto extends CompanyUpdateDto {
+  @Inject
+  MunicipalityService service;
 
-  private String denominazioneComune;
-  private String denominazioneUnitaSovracomunale;
-  private String denominazioneRegione;
-
-  private LocalDate dataCancellazione;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  @Scheduled(cron = "0 40 06 ? * *")
+  public void updateIstatMunicipalities() throws IOException {
+    log.info("Avvio aggiornamento dei comuni da Istat");
+    val updated = service.updateMunicipalitiesFromIstat();
+    log.info("Fine aggiornamento comuni da Istat, aggiornati {} comuni", updated);
+  }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -14,38 +14,55 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package it.cnr.anac.transparency.companies.v1.dto;
 
-import it.cnr.anac.transparency.companies.indicepa.EnteDto;
-import it.cnr.anac.transparency.companies.models.Company;
+import javax.inject.Inject;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.stereotype.Component;
+
+import it.cnr.anac.transparency.companies.indicepa.EnteDto;
+import it.cnr.anac.transparency.companies.models.Company;
+import it.cnr.anac.transparency.companies.repositories.MunicipalityRepository;
 
 /**
  * Mapping dei dati delle Entity nei rispettivi DTO e da DTO relativi
  * a fonti esterne come IndicePA ai DTO esportati dal servizio.
  *
  */
+@Component
 @Mapper(componentModel = "spring")
-public interface CompanyMapper {
+public abstract class CompanyMapper {
+
+  @Inject
+  protected MunicipalityRepository municipalRepository;
 
   @Mapping(target = "dataAggiornamento", ignore = true)
-  CompanyShowDto convert(Company company);
+  public abstract CompanyShowDto convert(Company company);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "sorgente", constant = "indicePA")
   @Mapping(target = "dataCancellazione", ignore = true)
+  @Mapping(target = "denominazioneComune", ignore = true)
+  @Mapping(target = "denominazioneUnitaSovracomunale", ignore = true)
+  @Mapping(target = "denominazioneRegione", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
-  CompanyShowDto convert(EnteDto enteDto);
+  public abstract CompanyShowDto convert(EnteDto enteDto);
 
+  @Mapping(target = "comune", 
+      expression = "java(municipalRepository.findByCodiceCatastale(companyDto.getCodiceCatastaleComune()).orElse(null))")
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "dataCancellazione", ignore = true)
+  @Mapping(target = "address", ignore = true)
+  @Mapping(target = "denominazioneComune", ignore = true)
+  @Mapping(target = "denominazioneUnitaSovracomunale", ignore = true)
+  @Mapping(target = "denominazioneRegione", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "version", ignore = true)
-  void update(@MappingTarget Company company, CompanyCreateDto companyDto);
+  public  abstract void update(@MappingTarget Company company, CompanyCreateDto companyDto);
 
 }

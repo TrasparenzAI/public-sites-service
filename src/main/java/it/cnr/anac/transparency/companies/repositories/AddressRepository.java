@@ -14,30 +14,22 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.v1.dto;
+package it.cnr.anac.transparency.companies.repositories;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Optional;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+
+import it.cnr.anac.transparency.companies.models.Address;
 
 /**
- * Data transfer object per le informazioni sulle Company.
+ * Repository per l'accesso ai dati degli indirizzi.
  *
+ * @author Cristian Lucchesi
  */
-@ToString
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class CompanyShowDto extends CompanyUpdateDto {
+public interface AddressRepository  extends JpaRepository<Address,Long>, QuerydslPredicateExecutor<Address>{
 
-  private String denominazioneComune;
-  private String denominazioneUnitaSovracomunale;
-  private String denominazioneRegione;
-
-  private LocalDate dataCancellazione;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  public Optional<Address> findById(Long id);
 
 }

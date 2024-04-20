@@ -44,7 +44,7 @@ public class CompanyCreateDto {
   private CompanySource sorgente;
   private LocalDate dataAggiornamento;
   private String codiceComuneIstat;
-  private String codiceCastaleComune;
+  private String codiceCatastaleComune;
   private String cap;
   private String indirizzo;
 

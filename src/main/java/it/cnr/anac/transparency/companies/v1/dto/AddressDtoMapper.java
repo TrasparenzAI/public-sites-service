@@ -16,28 +16,26 @@
  */
 package it.cnr.anac.transparency.companies.v1.dto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import it.cnr.anac.transparency.companies.models.Address;
+import it.cnr.anac.transparency.companies.models.Company;
 
 /**
- * Data transfer object per le informazioni sulle Company.
- *
+ * Mapping dei dati delle Entity nei rispettivi DTO.
  */
-@ToString
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class CompanyShowDto extends CompanyUpdateDto {
+@Mapper(componentModel = "spring")
+public interface AddressDtoMapper {
 
-  private String denominazioneComune;
-  private String denominazioneUnitaSovracomunale;
-  private String denominazioneRegione;
+  AddressShowDto convert(Address address);
 
-  private LocalDate dataCancellazione;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  @Mapping(source = "id", target = "companyId")
+  @Mapping(source = "denominazioneEnte", target = "companyName")
+  @Mapping(source = "codiceIpa", target = "ipaCode")
+  @Mapping(source = "address.id", target = "addressId")
+  @Mapping(source = "address.latitude", target = "latitude")
+  @Mapping(source = "address.longitude", target = "longitude")
+  CompanyAddressDto convert(Company company);
 
 }

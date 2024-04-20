@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -14,10 +14,12 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package it.cnr.anac.transparency.companies.utils;
 
 import com.google.common.base.Verify;
+
+import it.cnr.anac.transparency.companies.geo.AddressMapper;
+import it.cnr.anac.transparency.companies.geo.GeoService;
 import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyCreateDto;
@@ -36,15 +38,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class DtoToEntityConverter {
 
-  private final CompanyMapper mapper;
+  private final CompanyMapper companyMapper;
   private final CompanyRepository repo;
-
+  private final GeoService geoService;
+  private final AddressMapper addressMapper;
   /**
    * Crea una nuova Entity Company a partire dai dati del DTO.
    */
   public Company createEntity(CompanyCreateDto companyDto) {
     Company company = new Company();
-    mapper.update(company, companyDto);
+    companyMapper.update(company, companyDto);
+    val geoAddress = geoService.getBestMatchingGeoAddress(company);
+    if (geoAddress.isPresent()) {
+      company.setAddress(addressMapper.convert(geoAddress.get()));
+    }
     return company;
   }
 
@@ -56,7 +63,11 @@ public class DtoToEntityConverter {
     val company = repo.findById(companyDto.getId())
         .orElseThrow(() -> new EntityNotFoundException(
             String.format("Ente con id = %d non trovato", companyDto.getId())));
-    mapper.update(company, companyDto);
+    companyMapper.update(company, companyDto);
+    val geoAddress = geoService.getBestMatchingGeoAddress(company);
+    if (geoAddress.isPresent()) {
+      company.setAddress(addressMapper.convert(geoAddress.get()));
+    }
     return company;
   }
   
