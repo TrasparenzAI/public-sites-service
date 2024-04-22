@@ -14,14 +14,29 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies;
+package it.cnr.anac.transparency.companies.services;
 
+import com.google.common.base.Verify;
+import it.cnr.anac.transparency.companies.config.CachingConfig;
+import it.cnr.anac.transparency.companies.geo.AddressMapper;
+import it.cnr.anac.transparency.companies.geo.GeoService;
+import it.cnr.anac.transparency.companies.models.Company;
+import it.cnr.anac.transparency.companies.repositories.AddressRepository;
+import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyCreateDto;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyUpdateDto;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+import lombok.RequiredArgsConstructor;
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
+import org.geojson.Feature;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 /*
  * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
  *
@@ -39,20 +54,6 @@ import org.springframework.beans.factory.annotation.Value;
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import org.springframework.stereotype.Service;
-
-import com.google.common.base.Verify;
-
-import it.cnr.anac.transparency.companies.geo.AddressMapper;
-import it.cnr.anac.transparency.companies.geo.GeoService;
-import it.cnr.anac.transparency.companies.models.Company;
-import it.cnr.anac.transparency.companies.repositories.AddressRepository;
-import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyCreateDto;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyUpdateDto;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -131,5 +132,11 @@ public class CompanyService {
       }
     }
     return company;
+  }
+
+  @Cacheable(CachingConfig.COMPANIES_WITH_ADDRESS_CACHE_NAME)
+  public Collection<Feature> getCompaniesAsFeatures() {
+    return companyRepository.findAllActiveWithAddress().stream()
+        .map(geoService::mapCompanyToFeature).collect(Collectors.toList());
   }
 }
