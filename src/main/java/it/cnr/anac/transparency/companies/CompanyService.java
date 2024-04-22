@@ -16,6 +16,7 @@
  */
 package it.cnr.anac.transparency.companies;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -71,24 +72,26 @@ public class CompanyService {
   public Integer geolocalizeCompanies(Optional<Integer> limit, Optional<Integer> skip) {
     List<Company> companies = companyRepository.findWithoutAddress();
     if (skip.isPresent()) {
-      companies = companies.stream().skip(skip.get()).collect(Collectors.toList());
+      companies = companies.stream().sorted(Comparator.comparing(Company::getId)).skip(skip.get()).collect(Collectors.toList());
     }
     if (limit.isPresent()) {
-      companies = companies.stream().limit(limit.get()).collect(Collectors.toList());
+      companies = companies.stream().sorted(Comparator.comparing(Company::getId)).limit(limit.get()).collect(Collectors.toList());
     }
-    companies.stream().forEach(company -> {
+    int geolocalizedCompanies = 0;
+    for (Company company : companies) {
       val geoAddress = geoService.getBestMatchingGeoAddress(company);
       if (geoAddress.isPresent()) {
         val address = addressMapper.convert(geoAddress.get());
         addressRepository.save(address);
         company.setAddress(address);
         companyRepository.save(company);
+        geolocalizedCompanies++;
         log.info("Impostato indirizzo a {}", company);
       } else {
         log.warn("Geolocalizzazione indirizzo non riuscita per {}", company);
       }
-    });
-    return companies.size();
+    }
+    return geolocalizedCompanies;
   }
 
   /**

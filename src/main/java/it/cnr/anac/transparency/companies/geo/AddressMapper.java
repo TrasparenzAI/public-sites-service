@@ -16,10 +16,9 @@
  */
 package it.cnr.anac.transparency.companies.geo;
 
+import it.cnr.anac.transparency.companies.models.Address;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import it.cnr.anac.transparency.companies.models.Address;
 
 /**
  * Mapper MapStruct da indirizzi OpenstreetMap ad Address (entity).

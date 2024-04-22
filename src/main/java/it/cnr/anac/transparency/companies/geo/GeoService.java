@@ -16,19 +16,21 @@
  */
 package it.cnr.anac.transparency.companies.geo;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-
+import com.google.common.base.Verify;
 import com.google.common.collect.Lists;
-
+import com.google.common.collect.Maps;
 import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.repositories.MunicipalityRepository;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import org.geojson.Feature;
+import org.geojson.LngLatAlt;
+import org.geojson.Point;
+import org.springframework.stereotype.Service;
 
 /**
  * Servizio di Geo localizzazione degli indirizzi degli enti pubblici.
@@ -80,4 +82,25 @@ public class GeoService {
     return Optional.of(addresses.stream().max((a1, a2) -> a1.getImportance().compareTo(a2.getImportance())).get());
   }
 
+  public Feature mapCompanyToFeature(Company company) {
+    Verify.verifyNotNull(company);
+    val address = company.getAddress();
+    if (address == null) {
+      return null;
+    }
+    val feature = new Feature();
+    val point = new Point();
+    point.setCoordinates(
+        new LngLatAlt(
+            Double.parseDouble(address.getLongitude()), 
+            Double.parseDouble(address.getLatitude())));
+    feature.setGeometry(point);
+    feature.setId(company.getId().toString());
+    val properties = Maps.<String, Object>newHashMap();
+    properties.put("denominazioneEnte", company.getDenominazioneEnte());
+    properties.put("codiceIpa", company.getCodiceIpa());
+    properties.put("codiceFiscaleEnte", company.getCodiceFiscaleEnte());
+    feature.setProperties(properties);
+    return feature;
+  }
 }
