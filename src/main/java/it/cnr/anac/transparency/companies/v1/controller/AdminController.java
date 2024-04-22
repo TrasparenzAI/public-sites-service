@@ -188,7 +188,7 @@ public class AdminController {
     log.info("Geolocalizzazione indirizzi degli enti utilizzando Nominatim di OSM, con limite = {}, skip = {}",
         limit, skip);
     val companiesUpdated = companyService.geolocalizeCompanies(limit, skip);
-    log.info("Terminata la geolocalizzazione di {} indirizzi degli enti pubblici.", companiesUpdated);
-    return ResponseEntity.ok(limit.orElse(companiesUpdated));
+    log.info("Terminata la geolocalizzazione, {} indirizzi geolocalizzati con successo.", companiesUpdated);
+    return ResponseEntity.ok(companiesUpdated);
   }
 }

@@ -22,6 +22,7 @@
 		<springdoc-openapi.version>2.3.0</springdoc-openapi.version>
 		<querydsl.version>5.0.0</querydsl.version>
 		<opencsv.version>5.9</opencsv.version>
+		<geojson-jackson.version>1.14</geojson-jackson.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -129,6 +130,11 @@
 					<artifactId>commons-logging</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>de.grundid.opendatalab</groupId>
+			<artifactId>geojson-jackson</artifactId>
+			<version>${geojson-jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

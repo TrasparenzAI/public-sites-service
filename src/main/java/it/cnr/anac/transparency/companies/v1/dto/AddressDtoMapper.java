@@ -16,11 +16,8 @@
  */
 package it.cnr.anac.transparency.companies.v1.dto;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-
 import it.cnr.anac.transparency.companies.models.Address;
-import it.cnr.anac.transparency.companies.models.Company;
+import org.mapstruct.Mapper;
 
 /**
  * Mapping dei dati delle Entity nei rispettivi DTO.
@@ -29,13 +26,5 @@ import it.cnr.anac.transparency.companies.models.Company;
 public interface AddressDtoMapper {
 
   AddressShowDto convert(Address address);
-
-  @Mapping(source = "id", target = "companyId")
-  @Mapping(source = "denominazioneEnte", target = "companyName")
-  @Mapping(source = "codiceIpa", target = "ipaCode")
-  @Mapping(source = "address.id", target = "addressId")
-  @Mapping(source = "address.latitude", target = "latitude")
-  @Mapping(source = "address.longitude", target = "longitude")
-  CompanyAddressDto convert(Company company);
 
 }

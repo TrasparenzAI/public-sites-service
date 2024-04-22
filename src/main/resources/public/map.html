@@ -11,6 +11,7 @@
 	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 		integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
 		crossorigin=""></script>
+	<script src="leaflet.ajax.min.js"></script>
 	<style type="text/css">
 		#map { 
 			height: 640px;
@@ -30,21 +31,10 @@
 				    maxZoom: 19,
 				    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 				}).addTo(map);
-				url = "v1/geo"
-				fetch(url, {
-					method: 'GET'
-				})
-				.then(response => response.json())
-				.then(json => {
-					json.forEach(function(item) {
-						var marker = L.marker([item.latitude, item.longitude], {}).addTo(map);
-						marker.bindPopup("<strong>" + item.companyName + "</strong><br/>Codice IPA : " + item.ipaCode);
-					});
-				})
-				.catch(error => {
-					console.log('error on fetching company addresses!')
-					console.error(error)
-				});
+				var geojsonLayer = new L.geoJson.ajax("v1/geo/geojson")
+					.bindPopup(function (layer) {
+						return "<strong>" + layer.feature.properties.denominazioneEnte + "</strong><br/>Codice Ipa: " + layer.feature.properties.codiceIpa;
+					}).addTo(map);
 			</script>
 		</div>
 	</main>
