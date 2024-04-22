@@ -14,20 +14,20 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package it.cnr.anac.transparency.companies.v1.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.cnr.anac.transparency.companies.CompanyService;
 import it.cnr.anac.transparency.companies.geo.GeoService;
 import it.cnr.anac.transparency.companies.geo.OpenstreetMapAddressDto;
 import it.cnr.anac.transparency.companies.indicepa.IndicePaService;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityCsvDto;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityService;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
+import it.cnr.anac.transparency.companies.services.CachingService;
+import it.cnr.anac.transparency.companies.services.CompanyService;
 import it.cnr.anac.transparency.companies.v1.ApiRoutes;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
 import jakarta.persistence.EntityNotFoundException;
@@ -42,6 +42,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,6 +62,7 @@ public class AdminController {
   private final GeoService geoService;
   private final CompanyService companyService;
   private final CompanyRepository companyRepository;
+  private final CachingService cachingService;
 
   @Operation(
       summary = "Visualizzazione di tutti gli enti presenti in IndicePA.",
@@ -190,5 +192,18 @@ public class AdminController {
     val companiesUpdated = companyService.geolocalizeCompanies(limit, skip);
     log.info("Terminata la geolocalizzazione, {} indirizzi geolocalizzati con successo.", companiesUpdated);
     return ResponseEntity.ok(companiesUpdated);
+  }
+
+  @Operation(
+      summary = "Svuota le cache utilizzate, in particolare quella degli indirizzi geolicalizzati degli enti.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Cache svuotata correttamente")
+  })
+  @DeleteMapping("/evictCaches")
+  public ResponseEntity<Void> evictCaches() {
+    log.debug("Richiesta evict di tutte le cache");
+    cachingService.evictAllCaches();
+    return ResponseEntity.ok().build();
   }
 }

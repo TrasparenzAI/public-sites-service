@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package it.cnr.anac.transparency.companies;
+package it.cnr.anac.transparency.companies.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
