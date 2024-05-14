@@ -22,7 +22,9 @@ import com.google.common.collect.Maps;
 import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.repositories.MunicipalityRepository;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -45,6 +47,7 @@ public class GeoService {
   private final CompanyRepository companyRepository;
   private final MunicipalityRepository municipalityRepository;
   private final NominatimClient geoClient;
+  private final AddressMapper mapper;
 
   /**
    * Aggiorna il comune_id nell'entity company facendo il match del comune tramite
@@ -97,10 +100,39 @@ public class GeoService {
     feature.setGeometry(point);
     feature.setId(company.getId().toString());
     val properties = Maps.<String, Object>newHashMap();
-    properties.put("denominazioneEnte", company.getDenominazioneEnte());
-    properties.put("codiceIpa", company.getCodiceIpa());
-    properties.put("codiceFiscaleEnte", company.getCodiceFiscaleEnte());
+    val companyDto = 
+        CompanyDto.builder()
+          .denominazioneEnte(company.getDenominazioneEnte())
+          .codiceIpa(company.getCodiceIpa())
+          .codiceFiscaleEnte(company.getCodiceFiscaleEnte())
+          .build();
+    properties.put("companies", Lists.newArrayList(companyDto));
     feature.setProperties(properties);
     return feature;
   }
+
+  private CompanyDto companyDto(Company company) {
+    return CompanyDto.builder()
+        .denominazioneEnte(company.getDenominazioneEnte())
+        .codiceIpa(company.getCodiceIpa())
+        .codiceFiscaleEnte(company.getCodiceFiscaleEnte())
+        .build();
+  }
+
+  public Collection<Feature> featuresByCompanies(List<Company> companies) {
+    Map<LngLat, Feature> map = Maps.newHashMap();
+    companies.forEach(company -> {
+      val lngLat = mapper.convertToLngLat(company.getAddress());
+      if (map.containsKey(lngLat)) {
+        @SuppressWarnings("unchecked")
+        List<CompanyDto> companiesDto = (List<CompanyDto>) map.get(lngLat).getProperties().get("companies");
+        companiesDto.add(companyDto(company));
+        log.debug("{} già presente, aggiunto company {}", lngLat, companyDto(company));
+      } else {
+        map.put(lngLat, mapCompanyToFeature(company));
+      }
+    });
+    return map.values();
+  }
+
 }

@@ -35,7 +35,7 @@ public class GeoController {
   @GetMapping(ApiRoutes.LIST + "/geojson")
   public ResponseEntity<FeatureCollection> geoJson() {
     FeatureCollection featureCollection = new FeatureCollection();
-    featureCollection.addAll(companyService.getCompaniesAsFeatures());
+    featureCollection.addAll(companyService.getCompanieGroupedByPositionAsFeatures());
     return ResponseEntity.ok(featureCollection);
   }
 }

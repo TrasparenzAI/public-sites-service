@@ -59,13 +59,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class CompanyService {
-  
+
   private final CompanyRepository companyRepository;
   private final AddressRepository addressRepository;
   private final CompanyMapper companyMapper;
   private final GeoService geoService;
   private final AddressMapper addressMapper; 
-
 
   @Value("${transparency.geo.enabled}")
   private Boolean geoEnabled;
@@ -135,8 +134,7 @@ public class CompanyService {
   }
 
   @Cacheable(CachingConfig.COMPANIES_WITH_ADDRESS_CACHE_NAME)
-  public Collection<Feature> getCompaniesAsFeatures() {
-    return companyRepository.findAllActiveWithAddress().stream()
-        .map(geoService::mapCompanyToFeature).collect(Collectors.toList());
+  public Collection<Feature> getCompanieGroupedByPositionAsFeatures() {
+    return geoService.featuresByCompanies(companyRepository.findAllActiveWithAddress());
   }
 }
