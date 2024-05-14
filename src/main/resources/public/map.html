@@ -52,9 +52,13 @@
 				.then(json => {
 					json.features.forEach(function(item) {
 						// Marker definition
+						var description = ""
+						for (company of item.properties.companies) {
+							description += "<strong>" + company.denominazioneEnte + "</strong><br>Codice IPA: " + company.codiceIpa + "<br/>";
+						}
 						var marker =  
 							L.marker(item.geometry.coordinates.reverse(), {icon: icon})
-								.bindPopup("<strong>" + item.properties.denominazioneEnte + "</strong><br>Codice IPA: " + item.properties.codiceIpa);
+								.bindPopup(description);
 						// Adding marker to layer
 						ciLayer.addMarker(marker);
 					});

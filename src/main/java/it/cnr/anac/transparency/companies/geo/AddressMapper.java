@@ -40,4 +40,7 @@ public interface AddressMapper {
   @Mapping(target = "updatedAt", ignore = true)
   public abstract Address convert(OpenstreetMapAddressDto dto);
 
+  @Mapping(source = "latitude", target = "latitude")
+  @Mapping(source = "longitude", target = "longitude")
+  public abstract LngLat convertToLngLat(Address address);
 }
