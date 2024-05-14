@@ -21,6 +21,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.cnr.anac.transparency.companies.geo.GeoService;
+import it.cnr.anac.transparency.companies.geo.GoogleMapsAddressDto;
+import it.cnr.anac.transparency.companies.geo.GoogleMapsService;
 import it.cnr.anac.transparency.companies.geo.OpenstreetMapAddressDto;
 import it.cnr.anac.transparency.companies.indicepa.IndicePaService;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityCsvDto;
@@ -32,7 +34,6 @@ import it.cnr.anac.transparency.companies.v1.ApiRoutes;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -60,6 +61,7 @@ public class AdminController {
   private final IndicePaService indicePaService;
   private final MunicipalityService municipalityService;
   private final GeoService geoService;
+  private final GoogleMapsService googleMapsService;
   private final CompanyService companyService;
   private final CompanyRepository companyRepository;
   private final CachingService cachingService;
@@ -140,6 +142,16 @@ public class AdminController {
     log.info("Aggiornamento comuni utilizzando i dati dell'istat");
     val municipalitiesUpdated = municipalityService.updateMunicipalitiesFromIstat();
     return ResponseEntity.ok(municipalitiesUpdated);
+  }
+
+  @GetMapping("/geoCompanyGoogleMapsAddresses" + ApiRoutes.SHOW)
+  public ResponseEntity<List<GoogleMapsAddressDto>> geoCompanyGoogleMapsAddresses(
+      @NotNull @PathVariable("id") Long id) {
+    val company = companyRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + id));
+    log.info("company = {}", company);
+    val addresses = googleMapsService.getGoogleMapsAdresses(company);
+    return ResponseEntity.ok(addresses);
   }
 
   @Operation(
