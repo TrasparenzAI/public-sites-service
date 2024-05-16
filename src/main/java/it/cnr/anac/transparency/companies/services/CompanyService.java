@@ -72,6 +72,36 @@ public class CompanyService {
   @Value("${transparency.geo.enabled}")
   private Boolean geoEnabled;
 
+  public boolean geolocalizeCompany(Company company, Optional<Boolean> useGoogle) {
+    Address address = null;
+    if (useGoogle.isPresent() && useGoogle.get() && googleMapsService.isGoogleMapsConfigured()) {
+      val geoAddress = googleMapsService.getGoogleMapsAddress(company);
+      if (geoAddress.isPresent()) {
+        address = addressMapper.convert(geoAddress.get());
+      }
+    } else {
+      val geoAddress = geoService.getBestMatchingGeoAddress(company);
+      if (geoAddress.isPresent()) {
+        address = addressMapper.convert(geoAddress.get());
+      }
+    }
+    if (address != null) {
+      val currentAddress = company.getAddress();
+      if (currentAddress != null) {
+        company.setAddress(null);
+        addressRepository.delete(currentAddress);
+      }
+      addressRepository.save(address);
+      company.setAddress(address);
+      companyRepository.save(company);
+      log.info("Impostato indirizzo a {}", company);
+      return true;
+    } else {
+      log.warn("Geolocalizzazione indirizzo non riuscita per {}", company);
+      return false;
+    }
+  }
+
   public Integer geolocalizeCompanies(Optional<Integer> limit, Optional<Integer> skip, Optional<Boolean> useGoogle) {
     List<Company> companies = companyRepository.findWithoutAddress();
     if (skip.isPresent()) {
@@ -82,26 +112,8 @@ public class CompanyService {
     }
     int geolocalizedCompanies = 0;
     for (Company company : companies) {
-      Address address = null;
-      if (useGoogle.isPresent() && useGoogle.get() && googleMapsService.isGoogleMapsConfigured()) {
-        val geoAddress = googleMapsService.getGoogleMapsAddress(company);
-        if (geoAddress.isPresent()) {
-          address = addressMapper.convert(geoAddress.get());
-        }
-      } else {
-        val geoAddress = geoService.getBestMatchingGeoAddress(company);
-        if (geoAddress.isPresent()) {
-          address = addressMapper.convert(geoAddress.get());
-        }
-      }
-      if (address != null) {
-        addressRepository.save(address);
-        company.setAddress(address);
-        companyRepository.save(company);
+      if (geolocalizeCompany(company, useGoogle)) {
         geolocalizedCompanies++;
-        log.info("Impostato indirizzo a {}", company);
-      } else {
-        log.warn("Geolocalizzazione indirizzo non riuscita per {}", company);
       }
     }
     return geolocalizedCompanies;

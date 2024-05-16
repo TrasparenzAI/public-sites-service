@@ -74,7 +74,7 @@ public class GeoService {
       return Lists.newArrayList();
     }
     return geoClient.searchAddress(
-        String.format("%s, %s", company.getIndirizzo(), company.getComune().getDenominazione()));
+        String.format("%s, %s Italia", company.getIndirizzo(), company.getComune().getDenominazione()));
   }
 
   public Optional<OpenstreetMapAddressDto> getBestMatchingGeoAddress(Company company) {

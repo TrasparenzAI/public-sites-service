@@ -54,7 +54,7 @@ public class GoogleMapsService {
       return Lists.newArrayList();
     }
     return googleMapsClient.searchAddress(
-        String.format("%s, %s", company.getIndirizzo(), company.getComune().getDenominazione()), googleMapsKey).getResults();
+        String.format("%s, %s Italia", company.getIndirizzo(), company.getComune().getDenominazione()), googleMapsKey).getResults();
   }
 
   public Optional<GoogleMapsAddressDto> getGoogleMapsAddress(Company company) {
