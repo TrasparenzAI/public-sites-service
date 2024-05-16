@@ -1,5 +1,17 @@
 package it.cnr.anac.transparency.companies.v1.controller;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.geojson.FeatureCollection;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,18 +29,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
-import java.util.Optional;
-
-import org.geojson.FeatureCollection;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Geo Controller", description = "Visualizzazione e gestione delle informazioni geografiche",
   externalDocs =  
@@ -135,13 +135,13 @@ public class GeoController {
   }
 
   @Operation(
-      summary = "Aggiornamento della geolocalizzazione deli enti presenti nel servizio tramite Nominatim di OSM.",
-      description = "Aggiorna gli indirizzi degli enti geolocalizzandoli tramite il servizio Nominatm di OpenStreetMap.")
+      summary = "Aggiornamento della geolocalizzazione deli enti presenti nel servizio tramite Google Maps.",
+      description = "Aggiorna gli indirizzi degli enti geolocalizzandoli tramite il servizio Google Maps.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
           description = "Numero degli enti presenti di cui è stata aggiornata la geolocalizzazione."),
-      @ApiResponse(responseCode = "500", 
-          description = "Integrazioe Google Maps non attiva.")
+      @ApiResponse(responseCode = "400", 
+          description = "Integrazione Google Maps non attiva.")
   })
   @PostMapping("/updateCompanyAddressesUsingGoogleMaps")
   public ResponseEntity<Integer> updateCompanyAddressesUsingGoogleMaps(
@@ -150,7 +150,7 @@ public class GeoController {
     log.info("Geolocalizzazione indirizzi degli enti utilizzando Google Maps, con limite = {}, skip = {}",
         limit, skip);
     if (!googleMapsService.isGoogleMapsConfigured()) {
-      return ResponseEntity.internalServerError().build();
+      return ResponseEntity.badRequest().build();
     }
     val companiesUpdated = companyService.geolocalizeCompanies(limit, skip, Optional.of(true));
     log.info("Terminata la geolocalizzazione tramite Google Maps, {} indirizzi geolocalizzati con successo.", companiesUpdated);
