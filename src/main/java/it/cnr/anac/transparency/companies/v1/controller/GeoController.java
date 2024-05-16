@@ -135,7 +135,7 @@ public class GeoController {
   }
 
   @Operation(
-      summary = "Aggiornamento della geolocalizzazione deli enti presenti nel servizio tramite Google Maps.",
+      summary = "Aggiornamento della geolocalizzazione degli enti presenti nel servizio tramite Google Maps.",
       description = "Aggiorna gli indirizzi degli enti geolocalizzandoli tramite il servizio Google Maps.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
@@ -155,5 +155,30 @@ public class GeoController {
     val companiesUpdated = companyService.geolocalizeCompanies(limit, skip, Optional.of(true));
     log.info("Terminata la geolocalizzazione tramite Google Maps, {} indirizzi geolocalizzati con successo.", companiesUpdated);
     return ResponseEntity.ok(companiesUpdated);
+  }
+
+  @Operation(
+      summary = "Aggiornamento della geolocalizzazione dell'ente indicato tramite codiceIpa utilizzando il servizio Google Maps.",
+      description = "Aggiorna dell'indirizzo dell'ente indicato tramite codiceIpa tramite il servizio Google Maps.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "True se l'indirizzo è stato geolocalizzato, false altrimenti."),
+      @ApiResponse(responseCode = "400", 
+          description = "Integrazione Google Maps non attiva.")
+  })
+  @PostMapping("/updateCompanyAddressUsingGoogleMaps")
+  public ResponseEntity<Boolean> updateCompanyAddressUsingGoogleMaps(
+      @RequestParam(name = "codiceIpa") String codiceIpa) {
+    log.info("Geolocalizzazione indirizzo dell'ente con codiceIpa = {}", codiceIpa);
+    if (!googleMapsService.isGoogleMapsConfigured()) {
+      return ResponseEntity.badRequest().build();
+    }
+    val company = companyRepository.findByCodiceIpa(codiceIpa)
+        .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con codiceIpa = " + codiceIpa));
+    if (companyService.geolocalizeCompany(company, Optional.of(true))) {
+      log.info("Terminata la geolocalizzazione tramite Google Maps, indirizzo di geolocalizzato con successo.", company);
+      return ResponseEntity.ok(true);
+    };
+    return ResponseEntity.ok(false);
   }
 }
