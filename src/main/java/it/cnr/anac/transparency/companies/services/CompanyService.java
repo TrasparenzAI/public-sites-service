@@ -20,6 +20,8 @@ import com.google.common.base.Verify;
 import it.cnr.anac.transparency.companies.config.CachingConfig;
 import it.cnr.anac.transparency.companies.geo.AddressMapper;
 import it.cnr.anac.transparency.companies.geo.GeoService;
+import it.cnr.anac.transparency.companies.geo.GoogleMapsService;
+import it.cnr.anac.transparency.companies.models.Address;
 import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.repositories.AddressRepository;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
@@ -64,12 +66,13 @@ public class CompanyService {
   private final AddressRepository addressRepository;
   private final CompanyMapper companyMapper;
   private final GeoService geoService;
+  private final GoogleMapsService googleMapsService;
   private final AddressMapper addressMapper; 
 
   @Value("${transparency.geo.enabled}")
   private Boolean geoEnabled;
 
-  public Integer geolocalizeCompanies(Optional<Integer> limit, Optional<Integer> skip) {
+  public Integer geolocalizeCompanies(Optional<Integer> limit, Optional<Integer> skip, Optional<Boolean> useGoogle) {
     List<Company> companies = companyRepository.findWithoutAddress();
     if (skip.isPresent()) {
       companies = companies.stream().sorted(Comparator.comparing(Company::getId)).skip(skip.get()).collect(Collectors.toList());
@@ -79,9 +82,19 @@ public class CompanyService {
     }
     int geolocalizedCompanies = 0;
     for (Company company : companies) {
-      val geoAddress = geoService.getBestMatchingGeoAddress(company);
-      if (geoAddress.isPresent()) {
-        val address = addressMapper.convert(geoAddress.get());
+      Address address = null;
+      if (useGoogle.isPresent() && useGoogle.get() && googleMapsService.isGoogleMapsConfigured()) {
+        val geoAddress = googleMapsService.getGoogleMapsAddress(company);
+        if (geoAddress.isPresent()) {
+          address = addressMapper.convert(geoAddress.get());
+        }
+      } else {
+        val geoAddress = geoService.getBestMatchingGeoAddress(company);
+        if (geoAddress.isPresent()) {
+          address = addressMapper.convert(geoAddress.get());
+        }
+      }
+      if (address != null) {
         addressRepository.save(address);
         company.setAddress(address);
         companyRepository.save(company);

@@ -30,8 +30,9 @@ public class AddressShowDto {
   private String displayName;
   private String latitude;
   private String longitude;
-  private Integer osmId;
-  private String osmType;
-  private String type;
+  private String externalId;
+  private String externalType;
+  private String osmAddressType;
+  private String geolocalizedBy;
 
 }
