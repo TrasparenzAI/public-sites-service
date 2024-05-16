@@ -14,25 +14,22 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.v1.dto;
+package it.cnr.anac.transparency.companies.geo;
 
-import lombok.Data;
-import lombok.ToString;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@ToString
-@Data
-public class AddressShowDto {
+/**
+ * Client feign per la ricerca e geolocalizzazione degli indirizzi tramite API Google Maps.
+ *
+ * @author Cristian Lucchesi
+ */
+@FeignClient(name = "google-maps-client", url = "${transparency.google.maps.url}")
+public interface GoogleMapsClient {
 
-  private Long id;
-  private String addressType;
-  private String category;
-  private String name;
-  private String displayName;
-  private String latitude;
-  private String longitude;
-  private String externalId;
-  private String externalType;
-  private String osmAddressType;
-  private String geolocalizedBy;
-
+  @GetMapping("/maps/api/geocode/json")
+  abstract GoogleMapsResponseDto searchAddress(
+      @RequestParam(name="address") String address,
+      @RequestParam(name="key") String key);
 }

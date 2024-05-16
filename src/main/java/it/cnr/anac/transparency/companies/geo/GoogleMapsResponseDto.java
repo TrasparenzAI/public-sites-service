@@ -14,25 +14,16 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.v1.dto;
+package it.cnr.anac.transparency.companies.geo;
 
+import com.google.common.collect.Lists;
+import java.util.List;
 import lombok.Data;
-import lombok.ToString;
 
-@ToString
 @Data
-public class AddressShowDto {
+public class GoogleMapsResponseDto {
 
-  private Long id;
-  private String addressType;
-  private String category;
-  private String name;
-  private String displayName;
-  private String latitude;
-  private String longitude;
-  private String externalId;
-  private String externalType;
-  private String osmAddressType;
-  private String geolocalizedBy;
+  private List<GoogleMapsAddressDto> results = Lists.newArrayList();
+  private String status;
 
 }

@@ -33,8 +33,10 @@ public interface AddressMapper {
   @Mapping(source = "display_name", target = "displayName")
   @Mapping(source = "lat", target = "latitude")
   @Mapping(source = "lon", target = "longitude")
-  @Mapping(source = "osm_id", target = "osmId")
-  @Mapping(source = "osm_type", target = "osmType")
+  @Mapping(source = "osm_id", target = "externalId")
+  @Mapping(source = "osm_type", target = "externalType")
+  @Mapping(source = "type", target = "osmAddressType")
+  @Mapping(target = "geolocalizedBy", constant = "Nominatim")
   @Mapping(target = "version", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
@@ -43,4 +45,21 @@ public interface AddressMapper {
   @Mapping(source = "latitude", target = "latitude")
   @Mapping(source = "longitude", target = "longitude")
   public abstract LngLat convertToLngLat(Address address);
+  
+  @Mapping(target = "id", ignore = true)
+  @Mapping(source = "geometry.locationType", target = "addressType")
+  @Mapping(source = "formattedAddress", target = "name")
+  @Mapping(source = "formattedAddress", target = "displayName")
+  @Mapping(source = "geometry.location.lat", target = "latitude")
+  @Mapping(source = "geometry.location.lng", target = "longitude")
+  @Mapping(source = "placeId", target = "externalId")
+  @Mapping(target = "externalType", ignore = true)
+  @Mapping(target = "geolocalizedBy", constant = "GoogleMaps")
+  @Mapping(target = "osmAddressType", expression = "java(String.join(\",\", dto.getTypes()))")
+  @Mapping(target = "category", ignore = true)
+  @Mapping(target = "version", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "updatedAt", ignore = true)
+  public abstract Address convert(GoogleMapsAddressDto dto);
+
 }

@@ -38,9 +38,10 @@ public class Address extends MutableModel {
   private String displayName;
   private String latitude;
   private String longitude;
-  private Integer osmId;
-  private String osmType;
+  private String externalId;
+  private String externalType;
   @Column(name = "osm_address_type")
-  private String type;
+  private String osmAddressType;
+  private String geolocalizedBy;
 
 }

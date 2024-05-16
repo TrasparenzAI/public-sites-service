@@ -14,25 +14,16 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.v1.dto;
+package it.cnr.anac.transparency.companies.config;
 
-import lombok.Data;
-import lombok.ToString;
+import feign.Logger;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@ToString
-@Data
-public class AddressShowDto {
-
-  private Long id;
-  private String addressType;
-  private String category;
-  private String name;
-  private String displayName;
-  private String latitude;
-  private String longitude;
-  private String externalId;
-  private String externalType;
-  private String osmAddressType;
-  private String geolocalizedBy;
-
+@Configuration
+public class FeignConfiguration {
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.BASIC;
+    }
 }

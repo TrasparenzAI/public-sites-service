@@ -14,25 +14,37 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.companies.v1.dto;
+package it.cnr.anac.transparency.companies.geo;
+
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 
 import lombok.Data;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
-@ToString
 @Data
-public class AddressShowDto {
+public class GoogleMapsAddressDto {
 
-  private Long id;
-  private String addressType;
-  private String category;
-  private String name;
-  private String displayName;
-  private String latitude;
-  private String longitude;
-  private String externalId;
-  private String externalType;
-  private String osmAddressType;
-  private String geolocalizedBy;
+  @NoArgsConstructor
+  @Data
+  public final static  class Geometry {
+    @NoArgsConstructor
+    @Data
+    public final static class Location {
+      private double lat;
+      private double lng;
+    }
+    private Location location;
+    @JsonProperty("location_type")
+    private String locationType;
+  }
 
+  private Geometry geometry;
+  @JsonProperty("formatted_address")
+  private String formattedAddress;
+  @JsonProperty("place_id")
+  private String placeId;
+  private List<String> types = Lists.newArrayList();
 }
