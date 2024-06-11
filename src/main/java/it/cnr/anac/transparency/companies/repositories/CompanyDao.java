@@ -40,7 +40,7 @@ public class CompanyDao {
   public Page<Company> findAllActive(
       Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
       Optional<String> codiceIpa, Optional<String> denominazioneEnte, Optional<Long> idIpaFrom, 
-      Optional<Boolean> withoutAddress, Pageable pageable) {
+      Optional<Boolean> withoutAddress, Optional<String> regione, Pageable pageable) {
     QCompany company = QCompany.company;
     BooleanBuilder builder = new BooleanBuilder(company.dataCancellazione.isNull());
     if (codiceCategoria.isPresent()) {
@@ -60,6 +60,11 @@ public class CompanyDao {
     }
     if (withoutAddress.isPresent()) {
       builder.and(company.address.isNull());
+    }
+    if (regione.isPresent()) {
+      builder.and(
+          company.comune.isNotNull()
+            .and(company.comune.denominazioneRegione.equalsIgnoreCase(regione.get())));
     }
     return repo.findAll(builder.getValue(), pageable);
   }
