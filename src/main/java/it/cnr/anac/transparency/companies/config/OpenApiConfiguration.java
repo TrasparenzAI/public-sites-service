@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
     info = @Info(title = "Public sites Service", 
-    version = "0.0.5", 
+    version = "0.1.0", 
     description = "Public Sites Service si occupa di gestire le informazioni principali relative "
         + "agli enti pubblici italiani ed in particolare i siti istituzionali"),
     servers = {

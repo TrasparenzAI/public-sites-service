@@ -100,7 +100,7 @@ public class GeoController {
   }
 
   @Operation(
-      summary = "Visualizzazione della geolicalizzazione con la maggiore 'importanceì tra le possibile "
+      summary = "Visualizzazione della geolocalizzazione con la maggiore 'importance' tra le possibile "
           + "geolocalizzazioni del indirizzo dell'ente trovate tramite OpenstreetMap.",
       description = "Il servizio effettua una chiamata al servizio Nominatim di OSM.")
   @ApiResponses(value = {
@@ -117,8 +117,24 @@ public class GeoController {
   }
 
   @Operation(
-      summary = "Aggiornamento della geolocalizzazione deli enti presenti nel servizio tramite Nominatim di OSM.",
-      description = "Aggiorna gli indirizzi degli enti geolocalizzandoli tramite il servizio Nominatm di OpenStreetMap.")
+      summary = "Aggiornamento della geolocalizzazione del indirizzo dell'ente trovate tramite OpenstreetMap.",
+      description = "Il servizio effettua una chiamata al servizio Nominatim di OSM.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Aggiornata la geocalizzazione dell'indirizzo dell'ente.")
+  })
+  @PostMapping("/updateCompanyAddress" + ApiRoutes.SHOW)
+  public ResponseEntity<Boolean> updateCompanyAddresses(
+      @NotNull @PathVariable("id") Long id) {
+    val company = companyRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + id));
+    val updated = companyService.geolocalizeCompany(company, Optional.empty());
+    return ResponseEntity.ok(updated);
+  }
+
+  @Operation(
+      summary = "Aggiornamento della geolocalizzazione deli enti senza indirizzo presenti nel servizio tramite Nominatim di OSM.",
+      description = "Aggiorna gli indirizzi degli enti senza indirizzo geolocalizzandoli tramite il servizio Nominatim di OpenStreetMap.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
           description = "Numero degli enti presenti di cui è stata aggiornata la geolocalizzazione.")
@@ -130,6 +146,21 @@ public class GeoController {
     log.info("Geolocalizzazione indirizzi degli enti utilizzando Nominatim di OSM, con limite = {}, skip = {}",
         limit, skip);
     val companiesUpdated = companyService.geolocalizeCompanies(limit, skip, Optional.empty());
+    log.info("Terminata la geolocalizzazione, {} indirizzi geolocalizzati con successo.", companiesUpdated);
+    return ResponseEntity.ok(companiesUpdated);
+  }
+
+  @Operation(
+      summary = "Aggiornamento della geolocalizzazione degli enti già geolocalizzati con indirizzo di Nominatim di OSM.",
+      description = "Aggiorna gli indirizzi degli enti già geolocalizzati tramite il servizio Nominatim di OpenStreetMap.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Numero degli enti presenti di cui è stata aggiornata la geolocalizzazione.")
+  })
+  @PostMapping("/updateExistingCompanyAddresses")
+  public ResponseEntity<Integer> updateExistingCompanyAddresses() {
+    log.info("Aggiornamento della geolocalizzazione dgli indirizzi già geolocalizzati tramite Nominatim di OSM");
+    val companiesUpdated = companyService.geolocalizeCompaniesByNominatim();
     log.info("Terminata la geolocalizzazione, {} indirizzi geolocalizzati con successo.", companiesUpdated);
     return ResponseEntity.ok(companiesUpdated);
   }

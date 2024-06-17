@@ -116,19 +116,21 @@ public class CompanyController {
       @RequestParam("codiceFiscaleEnte") Optional<String> codiceFiscaleEnte,
       @RequestParam("codiceIpa") Optional<String> codiceIpa,
       @RequestParam("denominazioneEnte") Optional<String> denominazioneEnte,
+      @RequestParam("comune") Optional<String> comune,
+      @RequestParam("provincia") Optional<String> provincia,
       @RequestParam("idIpaFrom") Optional<Long> idIpaFrom,
       @RequestParam("withoutAddress") Optional<Boolean> withoutAddress,
       @RequestParam("regione") Optional<String> regione,
       @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}") 
       Pageable pageable) {
-	codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
-			Optional.empty() : codiceCategoria;
+    codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
+        Optional.empty() : codiceCategoria;
     codiceIpa = codiceIpa.isPresent() && codiceIpa.get().isEmpty() ?
             Optional.empty() : codiceIpa;
 
     val companies =
         companyDao.findAllActive(codiceCategoria, codiceFiscaleEnte, codiceIpa, 
-            denominazioneEnte,idIpaFrom, withoutAddress, regione, pageable)
+            denominazioneEnte, comune, provincia, idIpaFrom, withoutAddress, regione, pageable)
           .map(mapper::convert);
     return ResponseEntity.ok().body(companies);
   }

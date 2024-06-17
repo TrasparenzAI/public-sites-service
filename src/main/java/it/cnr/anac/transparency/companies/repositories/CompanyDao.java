@@ -39,7 +39,9 @@ public class CompanyDao {
   
   public Page<Company> findAllActive(
       Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
-      Optional<String> codiceIpa, Optional<String> denominazioneEnte, Optional<Long> idIpaFrom, 
+      Optional<String> codiceIpa, Optional<String> denominazioneEnte,
+      Optional<String> comune, Optional<String> provincia,
+      Optional<Long> idIpaFrom, 
       Optional<Boolean> withoutAddress, Optional<String> regione, Pageable pageable) {
     QCompany company = QCompany.company;
     BooleanBuilder builder = new BooleanBuilder(company.dataCancellazione.isNull());
@@ -55,6 +57,16 @@ public class CompanyDao {
     if (denominazioneEnte.isPresent()) {
       builder.and(company.denominazioneEnte.containsIgnoreCase(denominazioneEnte.get()));
     }
+    if (comune.isPresent()) {
+      builder.and(
+          company.comune.isNotNull()
+            .and(company.comune.denominazione.containsIgnoreCase(comune.get())));
+    }
+    if (provincia.isPresent()) {
+      builder.and(
+          company.comune.isNotNull()
+            .and(company.comune.denominazioneUnitaSovracomunale.containsIgnoreCase(provincia.get())));
+    }
     if (idIpaFrom.isPresent()) {
       builder.and(company.id.gt(idIpaFrom.get()));
     }
@@ -64,7 +76,7 @@ public class CompanyDao {
     if (regione.isPresent()) {
       builder.and(
           company.comune.isNotNull()
-            .and(company.comune.denominazioneRegione.equalsIgnoreCase(regione.get())));
+            .and(company.comune.denominazioneRegione.containsIgnoreCase(regione.get())));
     }
     return repo.findAll(builder.getValue(), pageable);
   }
