@@ -119,6 +119,17 @@ public class CompanyService {
     return geolocalizedCompanies;
   }
 
+  public Integer geolocalizeCompaniesByNominatim() {
+    List<Company> companies = companyRepository.findGeolocalizedByNominatim();
+    int geolocalizedCompanies = 0;
+    for (Company company : companies) {
+      if (geolocalizeCompany(company, Optional.of(Boolean.FALSE))) {
+        geolocalizedCompanies++;
+      }
+    }
+    return geolocalizedCompanies;
+  }
+
   /**
    * Crea una nuova Entity Company a partire dai dati del DTO.
    */
