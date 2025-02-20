@@ -1,7 +1,7 @@
 # Public Sites Service
 ## Public Sites - REST Services
 
-[![Supported JVM Versions](https://img.shields.io/badge/JVM-11-brightgreen.svg?style=for-the-badge&logo=Java)](https://openjdk.java.net/install/)
+[![Supported JVM Versions](https://img.shields.io/badge/JVM-17-brightgreen.svg?style=for-the-badge&logo=Java)](https://openjdk.java.net/install/)
 
 Public Sites Service è parte della suite di servizi per la verifica delle informazioni sulla
 Trasparenza dei siti web delle Pubbliche amministrazioni italiane.
@@ -30,6 +30,21 @@ I servizi saranno estesi per coprire tutte le funzionalità necessarie al crawli
 delle PA Italiane.
 
 L'aggiornamento dei dati locali al servizio Publis Sites Service tramite IndicePA avviene ogni mattina alle 6:30.
+
+### Sicurezza
+
+Gli endpoint REST di questo servizio sono protetti tramite autenticazione OAuth con Bearer Token.
+E' necessario configurare l'idp da utilizzare per validare i token OAuth tramite le due proprietà
+mostrare nell'esempio seguente:
+
+```
+    - spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dica33.ba.cnr.it/keycloak/realms/trasparenzai
+    - spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://dica33.ba.cnr.it/keycloak/realms/trasparenzai/protocol/openid-connect/certs
+```
+
+Per l'accesso in HTTP GET all'API è sufficiente essere autenticati, per gli endpoint accessibili
+con PUT/POST/DELETE è necessario oltre che essere autenticati che il token OAuth contenga un 
+role ADMIN o SUPERUSER.
 
 ## 👏 Come Contribuire 
 
