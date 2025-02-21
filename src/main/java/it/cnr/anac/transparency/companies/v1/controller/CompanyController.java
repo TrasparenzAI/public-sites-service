@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2025 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -38,6 +38,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.cnr.anac.transparency.companies.repositories.CompanyDao;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
@@ -56,6 +57,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
+@SecurityRequirement(name = "bearer_authentication")
 @Tag(name = "Company Controller", description = "Gestione delle informazioni degli Enti")
 @Slf4j
 @RequiredArgsConstructor

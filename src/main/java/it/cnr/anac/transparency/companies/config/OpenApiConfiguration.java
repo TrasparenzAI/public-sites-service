@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2025 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -14,11 +14,13 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package it.cnr.anac.transparency.companies.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,6 +40,13 @@ import org.springframework.context.annotation.Configuration;
         @Server(url = "/public-sites-service", description = "Public Sites Service URL"),
         @Server(url = "/", description = "Public Sites Service URL")}
     )
+@SecuritySchemes(value = {
+    @SecurityScheme(
+        name = "bearer_authentication",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer")
+})
 public class OpenApiConfiguration {
 
   //Empty class
