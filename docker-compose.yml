@@ -1,0 +1,51 @@
+#########################################################################
+# Result Service                                                        #
+# Configurazione per l'avvio di Public Sites Service                    #
+#########################################################################
+
+services:
+  result-service:
+    image: ghcr.io/cnr-anac/public-sites-service:latest
+    container_name: public-sites-service
+    links:
+      - postgres:postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+    environment:
+    - spring.docker.compose.enabled=false
+    - spring.datasource.url=jdbc:postgresql://${DB_HOST}:${DB_PORT:-5432}/${DB_NAME}
+    - spring.datasource.username=${DB_USER}
+    - spring.datasource.password=${DB_PASSWORD}
+    #- server.servlet.context-path=/result-service
+    - spring.datasource.hikari.maximum-pool-size=250
+    - spring.datasource.hikari.idle-timeout=60000
+    # Configurazione Autenticazione OAuth2 come Resource Server 
+    - spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dica33.ba.cnr.it/keycloak/realms/trasparenzai
+    - spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://dica33.ba.cnr.it/keycloak/realms/trasparenzai/protocol/openid-connect/certs
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
+  postgres:
+    image: 'postgres:16'
+    shm_size: 32gb
+    command: postgres -c max_connections=500 -c shared_buffers=4GB -c work_mem=16GB -c maintenance_work_mem=512MB -c max_stack_depth=7680kB
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+    ports:
+      - '5432'
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    healthcheck:
+      test: timeout 5 bash -c 'cat < /dev/null > /dev/tcp/localhost/5432'
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
