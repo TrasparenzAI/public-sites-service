@@ -5,7 +5,7 @@
 
 services:
   result-service:
-    image: ghcr.io/cnr-anac/public-sites-service:latest
+    image: ghcr.io/trasparenzai/public-sites-service:latest
     container_name: public-sites-service
     links:
       - postgres:postgres

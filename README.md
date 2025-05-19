@@ -67,7 +67,7 @@ Accertati di aver installato docker e il plugin di docker `compose` dove vuoi in
 esegui il comando successivo per un setup di esempio.
 
 ```
-curl -fsSL https://raw.githubusercontent.com/cnr-anac/public-sites-service/main/first-setup.sh -o first-setup.sh && sh first-setup.sh
+curl -fsSL https://raw.githubusercontent.com/trasparenzai/public-sites-service/main/first-setup.sh -o first-setup.sh && sh first-setup.sh
 ```
 
 Collegarsi a http://localhost:8080/swagger-ui/index.html per visualizzare la documentazione degli endpoint REST presenti nel servizio. 
@@ -75,7 +75,7 @@ Collegarsi a http://localhost:8080/swagger-ui/index.html per visualizzare la doc
 ## Backups
 
 Il servizio mantiene le informazioni relative alla configurazione nel db postgres, quindi è opportuno fare il backup
-del database a scadenza regolare. Nel repository è presente un file di esempio [backups.sh](https://github.com/cnr-anac/public-sites-service/blob/main/backups.sh) per effettuare i backup.
+del database a scadenza regolare. Nel repository è presente un file di esempio [backups.sh](https://github.com/trasparenzai/public-sites-service/blob/main/backups.sh) per effettuare i backup.
 
 All'interno dello script backups.sh è necessario impostare il corretto path dove si trova il docker-compose.yml del progetto, tramite la
 variabile `SERVICE_DIR`.
@@ -90,4 +90,4 @@ E' possibile contribuire a questo progetto utilizzando le modalità standard del
 Public Sites Service è concesso in licenza GNU AFFERO GENERAL PUBLIC LICENSE, come si trova nel file
 [LICENSE][l].
 
-[l]: https://github.com/cnr-anac/public-sites-service/blob/master/LICENSE
+[l]: https://github.com/trasparenzai/public-sites-service/blob/master/LICENSE
