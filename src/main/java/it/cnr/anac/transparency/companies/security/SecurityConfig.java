@@ -17,6 +17,7 @@
 package it.cnr.anac.transparency.companies.security;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -32,28 +33,41 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 @Configuration
+@EnableConfigurationProperties(Oauth2Properties.class)
 public class SecurityConfig {
-  @Bean
-  public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-    log.info("Enabling security config");
-    return http
-        .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement( config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(authz -> authz
-            .requestMatchers(HttpMethod.OPTIONS).permitAll()
-            .requestMatchers(HttpMethod.GET, "/actuator/*").permitAll()
-            .requestMatchers(HttpMethod.GET,"/v3/api-docs/**","/swagger-ui/**").permitAll()
-            .requestMatchers(HttpMethod.POST).hasAnyRole("ADMIN", "SUPERUSER")
-            .requestMatchers(HttpMethod.PUT).hasAnyRole("ADMIN", "SUPERUSER")
-            .requestMatchers(HttpMethod.DELETE).hasAnyRole("ADMIN", "SUPERUSER")
-            .anyRequest().authenticated())
-        .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> {
-          httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer -> {
-            jwtConfigurer.jwtAuthenticationConverter(
-                new RolesClaimConverter(new JwtGrantedAuthoritiesConverter())
-                );
-          });
-        })
-        .build();
-  }
+    private final Oauth2Properties oauth2Properties;
+
+    public SecurityConfig(Oauth2Properties oauth2Properties) {
+        this.oauth2Properties = oauth2Properties;
+    }
+
+    @Bean
+    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+        log.info("Enabling security config");
+        if (oauth2Properties.isEnabled()) {
+            http.authorizeHttpRequests(expressionInterceptUrlRegistry -> {
+                expressionInterceptUrlRegistry
+                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/actuator/*").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api-docs/**","/swagger-ui/**").permitAll();
+                oauth2Properties
+                        .getRoles()
+                        .forEach((key, value) ->
+                                expressionInterceptUrlRegistry
+                                        .requestMatchers(HttpMethod.valueOf(key)).hasAnyRole(value)
+                        );
+            });
+        }
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> {
+                    httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer -> {
+                        jwtConfigurer.jwtAuthenticationConverter(
+                                new RolesClaimConverter(new JwtGrantedAuthoritiesConverter())
+                        );
+                    });
+                })
+                .build();
+    }
 }
