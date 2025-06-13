@@ -56,6 +56,9 @@ public class SecurityConfig {
                                 expressionInterceptUrlRegistry
                                         .requestMatchers(HttpMethod.valueOf(key)).hasAnyRole(value)
                         );
+                expressionInterceptUrlRegistry
+                        .anyRequest()
+                        .permitAll();
             });
         }
         return http
