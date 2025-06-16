@@ -74,7 +74,9 @@ public class GeoController {
   public ResponseEntity<FeatureCollection> geoJson() {
     FeatureCollection featureCollection = new FeatureCollection();
     featureCollection.addAll(companyService.getCompanieGroupedByPositionAsFeatures());
-    return ResponseEntity.ok(featureCollection);
+    return ResponseEntity.ok()
+            .header("Cache-Control", "max-age=3600, public") // cache per 1 ora
+            .body(featureCollection);
   }
 
   @Operation(
