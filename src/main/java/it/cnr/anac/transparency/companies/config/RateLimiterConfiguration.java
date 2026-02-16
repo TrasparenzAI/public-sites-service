@@ -13,18 +13,19 @@ public class RateLimiterConfiguration {
 
     @Bean
     public RateLimiterRegistry rateLimiterRegistry() {
-        // Configurazione di default prudente nel caso in cui le properties non siano caricate
-        RateLimiterConfig defaultConfig = RateLimiterConfig.custom()
+        RateLimiterConfig config = RateLimiterConfig.custom()
                 .limitForPeriod(1)
                 .limitRefreshPeriod(Duration.ofSeconds(2))
                 .timeoutDuration(Duration.ofSeconds(300))
                 .build();
-        return RateLimiterRegistry.of(defaultConfig);
+        RateLimiterRegistry registry = RateLimiterRegistry.of(config);
+        // Pre-registriamo il limiter per assicurarci che sia pronto con la configurazione corretta
+        registry.rateLimiter("nominatimRateLimiter", config);
+        return registry;
     }
 
     @Bean(name = "nominatimRateLimiter")
     public RateLimiter nominatimRateLimiter(RateLimiterRegistry registry) {
-        // Usa o crea (se mancante) il rate limiter con nome "nominatimRateLimiter"
         return registry.rateLimiter("nominatimRateLimiter");
     }
 }

@@ -42,24 +42,24 @@ public class RateLimiterTest {
 
         long startTime = System.currentTimeMillis();
         
-        // Eseguiamo 2 chiamate. 
-        // Con il rate limiter impostato a 1 richiesta ogni 2 secondi, 
-        // la seconda chiamata dovrebbe attendere circa 2 secondi.
+        // Eseguiamo 3 chiamate consecutive al servizio.
+        // Il rate limiter interno a GeoService dovrebbe gestire l'attesa.
         
         geoService.getGeoAddresses(company);
-        rateLimiter.acquirePermission();
+        geoService.getGeoAddresses(company);
         geoService.getGeoAddresses(company);
         
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        System.out.println("[DEBUG_LOG] Duration for 2 calls: " + duration + "ms");
+        System.out.println("[DEBUG_LOG] Duration for 3 calls: " + duration + "ms");
         
         // Il rate limiter è configurato a 1 chiamata ogni 2 secondi.
-        // La durata dovrebbe essere >= 2000ms. 
-        // In alcuni casi il refresh period può essere già iniziato, 
-        // ma una durata > 1800ms indica che il limiter sta facendo il suo lavoro.
-        if (duration < 1800) {
-             throw new RuntimeException("Rate limiter non sembra funzionare. Durata: " + duration + "ms");
+        // Per 3 chiamate, la durata dovrebbe essere >= 2000ms. 
+        // Se la prima è immediata, la seconda attende 2s, la terza attende altri 2s (totale 4s).
+        // Tuttavia, a seconda del refresh period, la seconda potrebbe avvenire prima se il ciclo era già iniziato.
+        // Una durata > 2000ms indica che almeno un'attesa è avvenuta.
+        if (duration < 2000) {
+             throw new RuntimeException("Rate limiter non sembra funzionare. Durata per 3 chiamate: " + duration + "ms");
         }
     }
 }
