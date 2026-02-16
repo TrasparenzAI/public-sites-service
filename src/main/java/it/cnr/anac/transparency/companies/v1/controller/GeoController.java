@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2026 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -19,6 +19,7 @@ package it.cnr.anac.transparency.companies.v1.controller;
 import java.util.List;
 import java.util.Optional;
 
+import it.cnr.anac.transparency.companies.geo.*;
 import org.geojson.FeatureCollection;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,10 +35,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.cnr.anac.transparency.companies.geo.GeoService;
-import it.cnr.anac.transparency.companies.geo.GoogleMapsAddressDto;
-import it.cnr.anac.transparency.companies.geo.GoogleMapsService;
-import it.cnr.anac.transparency.companies.geo.OpenstreetMapAddressDto;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.services.CompanyService;
 import it.cnr.anac.transparency.companies.v1.ApiRoutes;
@@ -179,7 +176,7 @@ public class GeoController {
   })
   @PostMapping("/updateExistingCompanyAddresses")
   public ResponseEntity<Integer> updateExistingCompanyAddresses() {
-    log.info("Aggiornamento della geolocalizzazione dgli indirizzi già geolocalizzati tramite Nominatim di OSM");
+    log.info("Aggiornamento della geolocalizzazione degli indirizzi già geolocalizzati tramite Nominatim di OSM");
     val companiesUpdated = companyService.geolocalizeCompaniesByNominatim();
     log.info("Terminata la geolocalizzazione, {} indirizzi geolocalizzati con successo.", companiesUpdated);
     return ResponseEntity.ok(companiesUpdated);
@@ -227,7 +224,7 @@ public class GeoController {
     val company = companyRepository.findByCodiceIpa(codiceIpa)
         .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con codiceIpa = " + codiceIpa));
     if (companyService.geolocalizeCompany(company, Optional.of(true))) {
-      log.info("Terminata la geolocalizzazione tramite Google Maps, indirizzo di geolocalizzato con successo.", company);
+      log.info("Terminata la geolocalizzazione tramite Google Maps, indirizzo di {} geolocalizzato con successo.", company);
       return ResponseEntity.ok(true);
     };
     return ResponseEntity.ok(false);
