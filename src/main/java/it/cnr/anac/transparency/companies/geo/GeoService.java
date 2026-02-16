@@ -91,7 +91,7 @@ public class GeoService {
     }
     log.info("Geolocalizzazione indirizzo di {}", company);
     try {
-      return nominatimRateLimiter.executeSupplier(() -> 
+      return nominatimRateLimiter.executeSupplier(() ->
           geoClient.searchAddress(
             String.format("%s, %s %s Italia", company.getIndirizzo(), company.getCap(),
                 company.getComune().getDenominazione()))
