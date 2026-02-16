@@ -157,6 +157,13 @@ public class IndicePaService {
     return companiesDisabled;
   }
 
+  boolean areAddressesEqual(Company company, CompanyShowDto companyDto) {
+    return Objects.equals(company.getIndirizzo(), companyDto.getIndirizzo())
+        && Objects.equals(company.getCodiceComuneIstat(), companyDto.getCodiceComuneIstat())
+        && Objects.equals(company.getCodiceCatastaleComune(), companyDto.getCodiceCatastaleComune())
+        && Objects.equals(company.getCap(), companyDto.getCap());
+  }
+
   private boolean areEqual(Company company, CompanyShowDto companyDto) {
     return Objects.equals(company.getAcronimo(), companyDto.getAcronimo()) 
         && Objects.equals(company.getCodiceCategoria(), companyDto.getCodiceCategoria())
@@ -167,10 +174,7 @@ public class IndicePaService {
         && Objects.equals(company.getSitoIstituzionale(), companyDto.getSitoIstituzionale())
         && Objects.equals(company.getTipologia(), companyDto.getTipologia())
 
-        && Objects.equals(company.getCodiceComuneIstat(), companyDto.getCodiceComuneIstat())
-        && Objects.equals(company.getCodiceCatastaleComune(), companyDto.getCodiceCatastaleComune())
-        && Objects.equals(company.getCap(), companyDto.getCap())
-        && Objects.equals(company.getIndirizzo(), companyDto.getIndirizzo())
+        && areAddressesEqual(company, companyDto)
 
         && Objects.equals(company.getNomeResponsabile(), companyDto.getNomeResponsabile())
         && Objects.equals(company.getCognomeResponsabile(), companyDto.getCognomeResponsabile())

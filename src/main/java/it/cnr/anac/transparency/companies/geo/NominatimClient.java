@@ -18,6 +18,7 @@ package it.cnr.anac.transparency.companies.geo;
 
 import java.util.List;
 
+import it.cnr.anac.transparency.companies.config.FeignConfiguration;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  *
  * @author Cristian Lucchesi
  */
-@FeignClient(name = "nominatim-client", url = "${transparency.nominatim.url}")
+@FeignClient(name = "nominatim-client", url = "${transparency.nominatim.url}", configuration = FeignConfiguration.class)
 public interface NominatimClient {
 
   @GetMapping("/search?format=jsonv2")

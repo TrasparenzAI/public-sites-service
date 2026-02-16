@@ -19,6 +19,8 @@ package it.cnr.anac.transparency.companies.geo;
 import com.google.common.base.Verify;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import feign.FeignException;
+import io.github.resilience4j.ratelimiter.RateLimiter;
 import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.repositories.MunicipalityRepository;
@@ -32,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geojson.Feature;
 import org.geojson.LngLatAlt;
 import org.geojson.Point;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -40,7 +43,6 @@ import org.springframework.stereotype.Service;
  * @author Cristian Lucchesi
  */
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class GeoService {
 
@@ -48,6 +50,19 @@ public class GeoService {
   private final MunicipalityRepository municipalityRepository;
   private final NominatimClient geoClient;
   private final AddressMapper mapper;
+  private final RateLimiter nominatimRateLimiter;
+
+  public GeoService(CompanyRepository companyRepository,
+                    MunicipalityRepository municipalityRepository,
+                    NominatimClient geoClient,
+                    AddressMapper mapper,
+                    @Qualifier("nominatimRateLimiter") RateLimiter nominatimRateLimiter) {
+    this.companyRepository = companyRepository;
+    this.municipalityRepository = municipalityRepository;
+    this.geoClient = geoClient;
+    this.mapper = mapper;
+    this.nominatimRateLimiter = nominatimRateLimiter;
+  }
 
   /**
    * Aggiorna il comune_id nell'entity company facendo il match del comune tramite
@@ -71,16 +86,25 @@ public class GeoService {
   public List<OpenstreetMapAddressDto> getGeoAddresses(Company company) {
     if (company.getIndirizzo() == null || company.getComune() == null 
         || company.getComune().getDenominazione() == null) {
+      log.warn("Indirizzo o comune non presenti per la geolocalizzazione di {}", company);
       return Lists.newArrayList();
     }
-    return geoClient.searchAddress(
-        String.format("%s, %s %s Italia", company.getIndirizzo(), company.getCap(), 
-            company.getComune().getDenominazione()));
+    log.info("Geolocalizzazione indirizzo di {}", company);
+    try {
+      return nominatimRateLimiter.executeSupplier(() -> 
+          geoClient.searchAddress(
+            String.format("%s, %s %s Italia", company.getIndirizzo(), company.getCap(),
+                company.getComune().getDenominazione()))
+      );
+    } catch (Exception e) {
+      log.error("Errore durante la geolocalizzazione dell'indirizzo di {}", company, e);
+      return Lists.newArrayList();
+    }
   }
 
   public Optional<OpenstreetMapAddressDto> getBestMatchingGeoAddress(Company company) {
     val addresses = getGeoAddresses(company);
-    if (addresses.size() == 0) {
+    if (addresses.isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(addresses.stream().max((a1, a2) -> a1.getImportance().compareTo(a2.getImportance())).get());

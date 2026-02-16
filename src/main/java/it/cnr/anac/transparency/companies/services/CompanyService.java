@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2026 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -28,10 +28,8 @@ import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyCreateDto;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyUpdateDto;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -67,7 +65,7 @@ public class CompanyService {
   private final CompanyMapper companyMapper;
   private final GeoService geoService;
   private final GoogleMapsService googleMapsService;
-  private final AddressMapper addressMapper; 
+  private final AddressMapper addressMapper;
 
   @Value("${transparency.geo.enabled}")
   private Boolean geoEnabled;
@@ -156,7 +154,8 @@ public class CompanyService {
     Verify.verifyNotNull(company);
     Verify.verifyNotNull(companyDto);
     companyMapper.update(company, companyDto);
-    if (geoEnabled) {
+
+    if (geoEnabled && !areAddressesEqual(company, companyDto)) {
       val geoAddress = geoService.getBestMatchingGeoAddress(company);
       if (geoAddress.isPresent()) {
         val address = addressMapper.convert(geoAddress.get());
@@ -167,6 +166,13 @@ public class CompanyService {
       }
     }
     return company;
+  }
+
+  private boolean areAddressesEqual(Company company, CompanyUpdateDto companyDto) {
+    return Objects.equals(company.getIndirizzo(), companyDto.getIndirizzo())
+            && Objects.equals(company.getCodiceComuneIstat(), companyDto.getCodiceComuneIstat())
+            && Objects.equals(company.getCodiceCatastaleComune(), companyDto.getCodiceCatastaleComune())
+            && Objects.equals(company.getCap(), companyDto.getCap());
   }
 
   @Cacheable(CachingConfig.COMPANIES_WITH_ADDRESS_CACHE_NAME)
