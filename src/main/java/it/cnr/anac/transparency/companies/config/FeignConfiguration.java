@@ -18,21 +18,30 @@ package it.cnr.anac.transparency.companies.config;
 
 import feign.Logger;
 import feign.RequestInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class FeignConfiguration {
+
+    @Value(value = "${transparency.feign.referer")
+    private String feignReferer;
+
+    @Value(value = "${transparency.feign.userAgent}")
+    private String feignUserAgent;
+
     @Bean
     Logger.Level feignLoggerLevel() {
         return Logger.Level.BASIC;
     }
 
+
     @Bean
     public RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
-            requestTemplate.header("User-Agent", "ANAC-Transparency-Service/0.2.1");
-            requestTemplate.header("Referer", "https://trasparenzai.anticorruzione.it/");
+            requestTemplate.header("User-Agent", feignUserAgent);
+            requestTemplate.header("Referer", feignReferer);
             requestTemplate.header("Accept-Language", "it-IT,it;q=0.9,en;q=0.8");
         };
     }

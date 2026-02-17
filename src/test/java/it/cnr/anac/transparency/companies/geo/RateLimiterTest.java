@@ -5,7 +5,7 @@ import it.cnr.anac.transparency.companies.models.Municipality;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,7 +24,7 @@ public class RateLimiterTest {
     @Qualifier("nominatimRateLimiter")
     private RateLimiter rateLimiter;
 
-    @MockBean
+    @MockitoBean
     private NominatimClient client;
 
     @Test

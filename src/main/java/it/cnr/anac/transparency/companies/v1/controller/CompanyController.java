@@ -123,6 +123,7 @@ public class CompanyController {
       @RequestParam("idIpaFrom") Optional<Long> idIpaFrom,
       @RequestParam("withoutAddress") Optional<Boolean> withoutAddress,
       @RequestParam("regione") Optional<String> regione,
+      @RequestParam("visibile") Optional<Boolean> visibile,
       @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}") 
       Pageable pageable) {
     codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
@@ -132,7 +133,7 @@ public class CompanyController {
 
     val companies =
         companyDao.findAllActive(codiceCategoria, codiceFiscaleEnte, codiceIpa, 
-            denominazioneEnte, comune, provincia, idIpaFrom, withoutAddress, regione, pageable)
+            denominazioneEnte, comune, provincia, idIpaFrom, withoutAddress, regione, visibile, pageable)
           .map(mapper::convert);
     return ResponseEntity.ok().body(companies);
   }
@@ -158,17 +159,49 @@ public class CompanyController {
   @Operation(
       summary = "Aggiornamento dei dati di un ente.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Persona aggiornata correttamente."),
+      @ApiResponse(responseCode = "200", description = "Ente aggiornato correttamente."),
       @ApiResponse(responseCode = "400", description = "Validazione delle informazioni obbligatorie fallita.")
   })
   @PostMapping(ApiRoutes.UPDATE)
   public ResponseEntity<CompanyShowDto> update(@NotNull @Valid @RequestBody CompanyUpdateDto companyDto) {
-    log.debug("CompanyController::update personDto = {}", companyDto);
+    log.debug("CompanyController::update companyDto = {}", companyDto);
     var company = companyRepository.findById(companyDto.getId())
         .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + companyDto.getId()));
     companyService.updateCompany(company, companyDto);
     companyRepository.save(company);
     log.info("Aggiornato Ente, i nuovi dati sono {}", company);
+    return ResponseEntity.ok().body(mapper.convert(company));
+  }
+
+  @Operation(
+          summary = "Imposta un ente come visibile nei risultati di ricerca.")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Ente aggiornato correttamente come visibile nelle ricerche."),
+          @ApiResponse(responseCode = "404", description = "Ente non trovato.")
+  })
+  @PostMapping(ApiRoutes.SHOW + "/setVisibile")
+  public ResponseEntity<CompanyShowDto> setVisibile(@NotNull @PathVariable Long id) {
+    val company = companyRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + id));
+    company.setVisibile(true);
+    companyRepository.save(company);
+    log.info("Impostato come visibile nella ricerca l'ente {}", company);
+    return ResponseEntity.ok().body(mapper.convert(company));
+  }
+
+  @Operation(
+          summary = "Imposta l'ente come da NON mostrare nelle ricerche.")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Ente impostato come da NON mostrare nelle ricerche."),
+          @ApiResponse(responseCode = "404", description = "Ente non trovato.")
+  })
+  @PostMapping(ApiRoutes.SHOW + "/setInvisible")
+  public ResponseEntity<CompanyShowDto> setInvisibile(@NotNull @PathVariable Long id) {
+    val company = companyRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + id));
+    company.setVisibile(false);
+    companyRepository.save(company);
+    log.info("Impostato come da NON mostrare nelle ricerche l'ente {}", company);
     return ResponseEntity.ok().body(mapper.convert(company));
   }
 

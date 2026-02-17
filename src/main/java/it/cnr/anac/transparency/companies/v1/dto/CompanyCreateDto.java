@@ -43,6 +43,10 @@ public class CompanyCreateDto {
   private String sitoIstituzionale;
   private CompanySource sorgente;
   private LocalDate dataAggiornamento;
+
+  //Di default tutte le company sono visibili
+  private Boolean visibile;
+
   private String codiceComuneIstat;
   private String codiceCatastaleComune;
   private String cap;

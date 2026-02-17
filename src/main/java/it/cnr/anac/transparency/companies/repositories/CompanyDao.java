@@ -36,49 +36,40 @@ import org.springframework.stereotype.Component;
 public class CompanyDao {
 
   private final CompanyRepository repo;
-  
+
   public Page<Company> findAllActive(
       Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
       Optional<String> codiceIpa, Optional<String> denominazioneEnte,
       Optional<String> comune, Optional<String> provincia,
       Optional<Long> idIpaFrom, 
-      Optional<Boolean> withoutAddress, Optional<String> regione, Pageable pageable) {
-    QCompany company = QCompany.company;
-    BooleanBuilder builder = new BooleanBuilder(company.dataCancellazione.isNull());
-    if (codiceCategoria.isPresent()) {
-      builder.and(company.codiceCategoria.equalsIgnoreCase(codiceCategoria.get()));
-    }
-    if (codiceFiscaleEnte.isPresent()) {
-      builder.and(company.codiceFiscaleEnte.equalsIgnoreCase(codiceFiscaleEnte.get()));
-    }
-    if (codiceIpa.isPresent()) {
-      builder.and(company.codiceIpa.equalsIgnoreCase(codiceIpa.get()));
-    }
-    if (denominazioneEnte.isPresent()) {
-      builder.and(company.denominazioneEnte.containsIgnoreCase(denominazioneEnte.get()));
-    }
-    if (comune.isPresent()) {
-      builder.and(
-          company.comune.isNotNull()
-            .and(company.comune.denominazione.containsIgnoreCase(comune.get())));
-    }
-    if (provincia.isPresent()) {
-      builder.and(
-          company.comune.isNotNull()
-            .and(company.comune.denominazioneUnitaSovracomunale.containsIgnoreCase(provincia.get())));
-    }
-    if (idIpaFrom.isPresent()) {
-      builder.and(company.id.gt(idIpaFrom.get()));
-    }
-    if (withoutAddress.isPresent()) {
-      builder.and(company.address.isNull());
-    }
-    if (regione.isPresent()) {
-      builder.and(
-          company.comune.isNotNull()
-            .and(company.comune.denominazioneRegione.containsIgnoreCase(regione.get())));
-    }
-    return repo.findAll(builder.getValue(), pageable);
+      Optional<Boolean> withoutAddress, Optional<String> regione, 
+      Optional<Boolean> visibile, Pageable pageable) {
+      QCompany company = QCompany.company;
+      BooleanBuilder builder = new BooleanBuilder(company.dataCancellazione.isNull());
+      //Di default tutte le company hanno impostato visibile come True
+      if (visibile.isEmpty() || visibile.get()) {
+        builder.and(company.visibile.isTrue());
+      }
+      if (visibile.isPresent() && !visibile.get()) {
+        builder.and(company.visibile.isFalse());
+      }
+      codiceCategoria.ifPresent(s -> builder.and(company.codiceCategoria.equalsIgnoreCase(s)));
+      codiceFiscaleEnte.ifPresent(s -> builder.and(company.codiceFiscaleEnte.equalsIgnoreCase(s)));
+      codiceIpa.ifPresent(s -> builder.and(company.codiceIpa.equalsIgnoreCase(s)));
+      denominazioneEnte.ifPresent(s -> builder.and(company.denominazioneEnte.containsIgnoreCase(s)));
+      comune.ifPresent(s -> builder.and(
+              company.comune.isNotNull()
+                      .and(company.comune.denominazione.containsIgnoreCase(s))));
+      provincia.ifPresent(s -> builder.and(
+              company.comune.isNotNull()
+                      .and(company.comune.denominazioneUnitaSovracomunale.containsIgnoreCase(s))));
+      idIpaFrom.ifPresent(aLong -> builder.and(company.id.gt(aLong)));
+      withoutAddress.ifPresent(aBoolean -> builder.and(company.address.isNull()));
+      regione.ifPresent(s -> builder.and(
+              company.comune.isNotNull()
+                      .and(company.comune.denominazioneRegione.containsIgnoreCase(s))));
+      assert builder.getValue() != null;
+      return repo.findAll(builder.getValue(), pageable);
   }
 
   public Page<Company> findAllActiveWithAddress(Pageable pageable) {

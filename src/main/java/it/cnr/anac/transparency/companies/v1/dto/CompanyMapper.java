@@ -50,6 +50,7 @@ public abstract class CompanyMapper {
   @Mapping(target = "denominazioneRegione", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
+  @Mapping(target = "visibile", constant = "true")
   public abstract CompanyShowDto convert(EnteDto enteDto);
 
   @Mapping(target = "comune", 
