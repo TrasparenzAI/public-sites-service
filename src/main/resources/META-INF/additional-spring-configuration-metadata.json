@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "transparency.feign.referer",
+      "type": "java.lang.String",
+      "description": "Utilizzato come HTTP Referer nelle chiamate a Nominatim."
+  }
+] }

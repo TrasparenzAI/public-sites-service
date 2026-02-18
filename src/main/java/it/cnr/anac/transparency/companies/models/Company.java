@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2026 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -16,6 +16,7 @@
  */
 package it.cnr.anac.transparency.companies.models;
 
+import java.io.Serial;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
@@ -43,6 +44,7 @@ import lombok.ToString;
 @Entity
 public class Company extends MutableModel {
 
+  @Serial
   private static final long serialVersionUID = 4740036434463012854L;
 
   private String codiceIpa;
@@ -56,6 +58,9 @@ public class Company extends MutableModel {
   @Enumerated(EnumType.STRING)
   private CompanySource sorgente;
   private LocalDate dataCancellazione;
+
+  //Escludi dai risultati di ricerca
+  private Boolean visibile = true;
 
   @ManyToOne
   @JoinColumn(name = "municipality_id")

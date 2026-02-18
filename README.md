@@ -9,7 +9,7 @@ Trasparenza dei siti web delle Pubbliche amministrazioni italiane.
 ## Public Sites Service
 
 Public Sites Service è il componente che si occupa di gestire le informazioni principali relative agli enti
-pubblici italiani ed in particolare i siti istituzionali.
+pubblici italiani e in particolare i siti istituzionali.
 
 Public Sites Service mantiene nel proprio datastore locale le informazioni degli enti che possono essere 
 inserite/aggiornate tramite gli OpenData di IndicePA, oppure inserite tramite appositi servizi endopoint REST.
@@ -19,8 +19,7 @@ Public Sites fornisce alcuni servizi REST utilizzabili in produzione per:
  - mostrare la lista degli enti presenti negli OpenData di IndicePA
  - inserire ed aggiornare all'interno del servizio le informazioni degli Enti tramite gli OpenData di IndicePA 
  - visualizzare i dati di un Ente
- - geolocalizzare gli Enti italiani tramite il servizio Nominatim di 
-   OpenStreetMap
+ - geolocalizzare gli Enti italiani tramite il servizio Nominatim di [OpenStreetMap](openstreetmap.org/copyright)
  - mostrare la lista paginata degli Enti presenti nel servizio, con possibilità di filtrarli per 
    codiceCategoria, codiceFiscaleEnte, codiceIpa, denominazioneEnte
  - inserire, aggiornare e cancellare le informazioni degli Enti all'interno del servizio (direttamente senza passare da IndicePA)
@@ -31,7 +30,7 @@ L'OpenAPI del servizio di staging è disponibile all'indirizzo
 https://dica33.ba.cnr.it/public-sites-service/swagger-ui/index.html.
 
 Il servizio sincronizza e rendere disponibili via REST anche le informazioni 
-dei comuni italiani, prelevendo ogni notte il CSV dal sito dell'ISTAT dei comuni
+dei comuni italiani, prelevando ogni notte il CSV dal sito dell'ISTAT dei comuni
 e aggiornando questo info dentro il servizio stesso. Le info dei comuni servono
 anche per effettuare una geolocalizzazione più precisa degli enti, che su 
 IndicePA sono classificati solamente tramite il codice catastale del comune.
@@ -80,9 +79,21 @@ del database a scadenza regolare. Nel repository è presente un file di esempio 
 All'interno dello script backups.sh è necessario impostare il corretto path dove si trova il docker-compose.yml del progetto, tramite la
 variabile `SERVICE_DIR`.
 
+## Geolocalizzazione degli Enti
+
+Public Sites Service utilizza il servizio Nominatim di [OpenStreetMap](openstreetmap.org/copyright) per geolocalizzare gli Enti italiani. 
+È possibile consultare la documentazione del servizio [qui](https://nominatim.org/release-docs/develop/api/Overview/).
+In particolare il servizio limita l'effetto "heavy uses" attraverso un meccanismo di rate limit
+delle richieste verso Nominatim a non più di una ogni due secondi e fornisce un HTTP Referer valido 
+e uno User-Agent specifico per identificare l'applicazione.
+
+Il servizio integra anche la possibilità di utilizzare il servizio di geolocalizzazione di Google Maps,
+attivabile tramite i parametri di configurazione `transparency.google.maps.key` e 
+`transparency.google.maps.enabled`.
+
 ## 👏 Come Contribuire 
 
-E' possibile contribuire a questo progetto utilizzando le modalità standard della comunità opensource 
+È possibile contribuire a questo progetto utilizzando le modalità standard della comunità Opensource 
 (issue + pull request) e siamo grati alla comunità per ogni contribuito a correggere bug e miglioramenti.
 
 ## 📄 Licenza
