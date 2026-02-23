@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2026 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -41,6 +41,9 @@ public abstract class CompanyMapper {
 
   @Mapping(target = "dataAggiornamento", ignore = true)
   public abstract CompanyShowDto convert(Company company);
+
+  @Mapping(target = "dataAggiornamento", ignore = true)
+  public abstract CompanyShowRedactedDto convertRedacted(Company company);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "sorgente", constant = "indicePA")

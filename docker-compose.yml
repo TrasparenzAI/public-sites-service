@@ -4,7 +4,7 @@
 #########################################################################
 
 services:
-  result-service:
+  public-sites-service:
     image: ghcr.io/trasparenzai/public-sites-service:latest
     container_name: public-sites-service
     links:
@@ -25,6 +25,8 @@ services:
     # Configurazione Autenticazione OAuth2 come Resource Server 
     - spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dica33.ba.cnr.it/keycloak/realms/trasparenzai
     - spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://dica33.ba.cnr.it/keycloak/realms/trasparenzai/protocol/openid-connect/certs
+    # Permette di NON visualizzare i dati del responsabile della PA
+    #- transparency.companies.show-responsabile=false
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro

@@ -91,6 +91,13 @@ Il servizio integra anche la possibilità di utilizzare il servizio di geolocali
 attivabile tramite i parametri di configurazione `transparency.google.maps.key` e 
 `transparency.google.maps.enabled`.
 
+## Mostrare i dati del responsabile della PA
+
+Public Sites Service permette di mostrare i dati del responsabile della Pubblica Amministrazione tramite 
+gli l'endpoint di visualizzazione e ricerca delle PA.
+È possibile disabilitare la visualizzazione dei dati del responsabile della PA tramite la configurazione 
+dell'applicazione `transparency.companies.show-responsabile=false`.
+
 ## 👏 Come Contribuire 
 
 È possibile contribuire a questo progetto utilizzando le modalità standard della comunità Opensource 

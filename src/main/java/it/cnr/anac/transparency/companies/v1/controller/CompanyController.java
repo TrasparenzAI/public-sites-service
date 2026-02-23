@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2026 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -19,6 +19,7 @@ package it.cnr.anac.transparency.companies.v1.controller;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import it.cnr.anac.transparency.companies.v1.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -44,12 +45,6 @@ import it.cnr.anac.transparency.companies.repositories.CompanyDao;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.services.CompanyService;
 import it.cnr.anac.transparency.companies.v1.ApiRoutes;
-import it.cnr.anac.transparency.companies.v1.dto.AddressDtoMapper;
-import it.cnr.anac.transparency.companies.v1.dto.AddressShowDto;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyCreateDto;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
-import it.cnr.anac.transparency.companies.v1.dto.CompanyUpdateDto;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -67,7 +62,7 @@ public class CompanyController {
 
   private final CompanyRepository companyRepository;
   private final CompanyDao companyDao;
-  private final CompanyMapper mapper;
+  private final CompanyMapper companyMapper;
   private final AddressDtoMapper addressMapper;
   private final CompanyService companyService;
 
@@ -81,10 +76,10 @@ public class CompanyController {
           content = @Content)
   })
   @GetMapping(ApiRoutes.SHOW)
-  public ResponseEntity<CompanyShowDto> show(@NotNull @PathVariable("id") Long id) {
+  public ResponseEntity<CompanyShowRedactedDto> show(@NotNull @PathVariable("id") Long id) {
     val company = companyRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + id));
-    return ResponseEntity.ok().body(mapper.convert(company));
+    return ResponseEntity.ok().body(companyMapper.convertRedacted(company));
   }
 
   @Operation(
@@ -113,7 +108,7 @@ public class CompanyController {
           description = "Restitutita una pagina della lista degli enti presenti.")
   })
   @GetMapping(ApiRoutes.LIST)
-  public ResponseEntity<Page<CompanyShowDto>> list(
+  public ResponseEntity<Page<CompanyShowRedactedDto>> list(
       @RequestParam("codiceCategoria") Optional<String> codiceCategoria,
       @RequestParam("codiceFiscaleEnte") Optional<String> codiceFiscaleEnte,
       @RequestParam("codiceIpa") Optional<String> codiceIpa,
@@ -134,7 +129,7 @@ public class CompanyController {
     val companies =
         companyDao.findAllActive(codiceCategoria, codiceFiscaleEnte, codiceIpa, 
             denominazioneEnte, comune, provincia, idIpaFrom, withoutAddress, regione, visibile, pageable)
-          .map(mapper::convert);
+          .map(companyMapper::convertRedacted);
     return ResponseEntity.ok().body(companies);
   }
 
@@ -153,7 +148,7 @@ public class CompanyController {
     val company = companyService.createCompany(companyDto);
     companyRepository.save(company);
     log.info("Creato Ente {}", company);
-    return ResponseEntity.status(HttpStatus.CREATED).body(mapper.convert(company));
+    return ResponseEntity.status(HttpStatus.CREATED).body(companyMapper.convert(company));
   }
 
   @Operation(
@@ -170,7 +165,7 @@ public class CompanyController {
     companyService.updateCompany(company, companyDto);
     companyRepository.save(company);
     log.info("Aggiornato Ente, i nuovi dati sono {}", company);
-    return ResponseEntity.ok().body(mapper.convert(company));
+    return ResponseEntity.ok().body(companyMapper.convert(company));
   }
 
   @Operation(
@@ -180,13 +175,13 @@ public class CompanyController {
           @ApiResponse(responseCode = "404", description = "Ente non trovato.")
   })
   @PostMapping(ApiRoutes.SHOW + "/setVisibile")
-  public ResponseEntity<CompanyShowDto> setVisibile(@NotNull @PathVariable Long id) {
+  public ResponseEntity<CompanyShowRedactedDto> setVisibile(@NotNull @PathVariable Long id) {
     val company = companyRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + id));
     company.setVisibile(true);
     companyRepository.save(company);
     log.info("Impostato come visibile nella ricerca l'ente {}", company);
-    return ResponseEntity.ok().body(mapper.convert(company));
+    return ResponseEntity.ok().body(companyMapper.convertRedacted(company));
   }
 
   @Operation(
@@ -196,13 +191,13 @@ public class CompanyController {
           @ApiResponse(responseCode = "404", description = "Ente non trovato.")
   })
   @PostMapping(ApiRoutes.SHOW + "/setInvisible")
-  public ResponseEntity<CompanyShowDto> setInvisibile(@NotNull @PathVariable Long id) {
+  public ResponseEntity<CompanyShowRedactedDto> setInvisibile(@NotNull @PathVariable Long id) {
     val company = companyRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Ente non trovato con id = " + id));
     company.setVisibile(false);
     companyRepository.save(company);
     log.info("Impostato come da NON mostrare nelle ricerche l'ente {}", company);
-    return ResponseEntity.ok().body(mapper.convert(company));
+    return ResponseEntity.ok().body(companyMapper.convertRedacted(company));
   }
 
   @Operation(
