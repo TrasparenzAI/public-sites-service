@@ -14,23 +14,23 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package it.cnr.anac.transparency.companies.v1.dto;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-/**
- * Data transfer object per le informazioni relativa alla creazione di un Company.
- */
-@EqualsAndHashCode(callSuper = true)
-@ToString
-@Data
-public class CompanyCreateDto extends CompanyBaseDto {
+@Component
+public class TitoloResponsabileFilter {
+    private static boolean mostraResponsabile;
 
-  private String titoloResponsabile;
-  private String nomeResponsabile;
-  private String cognomeResponsabile;
+    @Value("${transparency.companies.show-responsabile:false}")
+    public void setMostraTitoloResponsabile(boolean mostra) {
+        mostraResponsabile = mostra;
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        // Se ritorna true, Jackson ESCLUDE il campo dal JSON
+        return !mostraResponsabile;
+    }
 }
