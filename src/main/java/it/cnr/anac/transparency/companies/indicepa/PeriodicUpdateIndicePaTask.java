@@ -30,7 +30,7 @@ public class PeriodicUpdateIndicePaTask {
   @Inject
   IndicePaService service;
 
-  @Scheduled(cron = "0 30 06 ? * *")
+  @Scheduled(cron = "${app.scheduling.indicepa.cron}")
   public void updateIndicePaCompanies() {
     log.info("Avvio aggiornamento degli enti da IndicePA");
     val updated = service.updateCompaniesFromIndicePa(Optional.empty());
