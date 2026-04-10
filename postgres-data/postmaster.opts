@@ -1,0 +1,1 @@
+/usr/lib/postgresql/16/bin/postgres "-c" "max_connections=500" "-c" "shared_buffers=4GB" "-c" "work_mem=16GB" "-c" "maintenance_work_mem=512MB" "-c" "max_stack_depth=7680kB"

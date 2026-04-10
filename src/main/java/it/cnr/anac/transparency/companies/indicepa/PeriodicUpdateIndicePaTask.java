@@ -17,11 +17,14 @@
 package it.cnr.anac.transparency.companies.indicepa;
 
 import java.util.Optional;
+
 import javax.inject.Inject;
-import lombok.val;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
