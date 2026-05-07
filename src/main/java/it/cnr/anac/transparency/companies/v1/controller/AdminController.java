@@ -18,6 +18,7 @@ package it.cnr.anac.transparency.companies.v1.controller;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.cnr.anac.transparency.companies.indicepa.IndicePaService;
+import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockService;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityCsvDto;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityService;
 import it.cnr.anac.transparency.companies.services.CachingService;
@@ -54,8 +56,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminController {
 
   private final IndicePaService indicePaService;
+  private final IndicePaUpdateLockService lockService;
   private final MunicipalityService municipalityService;
-
   private final CachingService cachingService;
 
   @Operation(
@@ -127,7 +129,7 @@ public class AdminController {
   @Operation(
       summary = "Svuota le cache utilizzate, in particolare quella degli indirizzi geolicalizzati degli enti.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", 
+      @ApiResponse(responseCode = "200",
           description = "Cache svuotata correttamente")
   })
   @DeleteMapping("/evictCaches")
@@ -135,5 +137,53 @@ public class AdminController {
     log.debug("Richiesta evict di tutte le cache");
     cachingService.evictAllCaches();
     return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "Attiva il lock sull'aggiornamento degli enti da IndicePA.",
+      description = "Quando il lock è attivo, nessun aggiornamento da IndicePA viene eseguito, "
+          + "né tramite il job periodico né tramite chiamata REST.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Lock attivato correttamente")
+  })
+  @PostMapping("/lock")
+  public ResponseEntity<Void> lock() {
+    lockService.lock();
+    return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "Disattiva il lock sull'aggiornamento degli enti da IndicePA.",
+      description = "Riabilita gli aggiornamenti da IndicePA, sia tramite job periodico che tramite chiamata REST.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Lock disattivato correttamente")
+  })
+  @PostMapping("/unlock")
+  public ResponseEntity<Void> unlock() {
+    lockService.unlock();
+    return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "Restituisce lo stato del lock sull'aggiornamento da IndicePA.",
+      description = "Indica se il lock è attivo (true) o non attivo (false).")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Stato del lock restituito correttamente")
+  })
+  @GetMapping("/lockStatus")
+  public ResponseEntity<Boolean> lockStatus() {
+    return ResponseEntity.ok(lockService.isLocked());
+  }
+
+  @Operation(
+      summary = "Restituisce la data e ora dell'ultimo aggiornamento degli enti da IndicePA.",
+      description = "Restituisce il timestamp dell'ultima esecuzione completata con successo "
+          + "dell'aggiornamento da IndicePA, oppure null se non è mai stato eseguito.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Data dell'ultimo aggiornamento restituita correttamente")
+  })
+  @GetMapping("/lastUpdate")
+  public ResponseEntity<LocalDateTime> lastUpdate() {
+    return ResponseEntity.ok(lockService.getLastUpdate().orElse(null));
   }
 }
