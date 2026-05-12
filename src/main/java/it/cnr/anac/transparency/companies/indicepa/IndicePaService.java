@@ -51,6 +51,7 @@ public class IndicePaService {
   private final CompanyMapper mapper;
   private final CompanyRepository repo;
   private final CompanyService companyService;
+  private final IndicePaUpdateLockService lockService;
 
   /**
    * @return la lista delle aziende pubbliche presenti nel IndicePA
@@ -68,6 +69,9 @@ public class IndicePaService {
   }
 
   public int updateCompaniesFromIndicePa(Optional<LocalDate> lastUpdateFrom) {
+    if (lockService.isLocked()) {
+      throw new IndicePaUpdateLockedException();
+    }
     int companiesUpdated = 0;
     val allIndicePaCompanies = getCompaniesFromIndicePa(Optional.empty());
     var indicePaCompanies = allIndicePaCompanies;
@@ -112,6 +116,8 @@ public class IndicePaService {
         .collect(Collectors.toList());
 
     companiesUpdated += disableCompanies(localNotInIndicePaToDisable);
+
+    lockService.recordUpdate();
 
     return companiesUpdated;
   }

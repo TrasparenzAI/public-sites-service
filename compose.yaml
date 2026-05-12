@@ -9,3 +9,5 @@ services:
       - spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://dica33.ba.cnr.it/keycloak/realms/trasparenzai/protocol/openid-connect/certs
     ports:
       - '5432'
+    volumes:
+      - ./public-sites-service-20260216-0610.sql:/docker-entrypoint-initdb.d/init.sql

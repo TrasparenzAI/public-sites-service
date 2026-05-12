@@ -36,8 +36,12 @@ public class PeriodicUpdateIndicePaTask {
   @Scheduled(cron = "${app.scheduling.indicepa.cron}")
   public void updateIndicePaCompanies() {
     log.info("Avvio aggiornamento degli enti da IndicePA");
-    val updated = service.updateCompaniesFromIndicePa(Optional.empty());
-    log.info("Fine aggiornamento enti da IndicePA, aggiornati {} enti", updated);
+    try {
+      val updated = service.updateCompaniesFromIndicePa(Optional.empty());
+      log.info("Fine aggiornamento enti da IndicePA, aggiornati {} enti", updated);
+    } catch (IndicePaUpdateLockedException e) {
+      log.warn("Aggiornamento periodico da IndicePA saltato: {}", e.getMessage());
+    }
   }
 
 }

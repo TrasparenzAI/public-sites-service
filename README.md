@@ -18,6 +18,7 @@ Public Sites fornisce alcuni servizi REST utilizzabili in produzione per:
 
  - mostrare la lista degli enti presenti negli OpenData di IndicePA
  - inserire ed aggiornare all'interno del servizio le informazioni degli Enti tramite gli OpenData di IndicePA 
+ - bloccare e sbloccare gli aggiornamenti degli Enti da IndicePA tramite un sistema di lock amministrativo
  - visualizzare i dati di un Ente
  - geolocalizzare gli Enti italiani tramite il servizio Nominatim di [OpenStreetMap](openstreetmap.org/copyright)
  - mostrare la lista paginata degli Enti presenti nel servizio, con possibilità di filtrarli per 
@@ -39,6 +40,47 @@ L'aggiornamento dei dati locali al servizio Public Sites Service tramite
 IndicePA avviene ogni mattina alle 6:30.
 L'aggiornamento dei dati locali al servizio Public Sites Service tramite il CSV
 di ISTAT avviene ogni mattina alle 6:40.
+
+### Lock degli aggiornamenti da IndicePA
+
+Il servizio espone un sistema di lock amministrativo per sospendere gli aggiornamenti
+degli enti provenienti da IndicePA. Il lock agisce sia sul job periodico schedulato
+ogni mattina alle 6:30, sia sull'endpoint REST manuale
+`POST /v1/admin/updateIndicePaCompanies`.
+
+Quando il lock è attivo, l'aggiornamento manuale da IndicePA viene rifiutato con
+HTTP `409 Conflict` e il job periodico viene saltato. Le operazioni di consultazione
+dei dati già presenti nel servizio restano disponibili.
+
+Gli endpoint disponibili sono:
+
+| Metodo | Endpoint | Descrizione |
+| --- | --- | --- |
+| `POST` | `/v1/admin/lock` | Attiva il lock sugli aggiornamenti da IndicePA. |
+| `POST` | `/v1/admin/unlock` | Disattiva il lock e consente nuovamente gli aggiornamenti da IndicePA. |
+| `GET` | `/v1/admin/lockStatus` | Restituisce `true` se il lock è attivo, `false` altrimenti. |
+| `GET` | `/v1/admin/lastUpdate` | Restituisce il timestamp dell'ultimo aggiornamento da IndicePA completato con successo, oppure una risposta vuota se non è mai stato eseguito. |
+
+Esempi di utilizzo:
+
+```
+curl -X POST -H "Authorization: Bearer <token>" \
+  http://localhost:8080/v1/admin/lock
+
+curl -H "Authorization: Bearer <token>" \
+  http://localhost:8080/v1/admin/lockStatus
+
+curl -X POST -H "Authorization: Bearer <token>" \
+  http://localhost:8080/v1/admin/unlock
+
+curl -H "Authorization: Bearer <token>" \
+  http://localhost:8080/v1/admin/lastUpdate
+```
+
+Lo stato del lock e la data dell'ultimo aggiornamento sono salvati nella tabella
+`indice_pa_update_settings`. La migrazione iniziale crea una riga con lock non attivo
+e `last_update` nullo. Il campo `last_update` viene aggiornato solo al termine di un
+aggiornamento da IndicePA completato con successo.
 
 ### Sicurezza
 

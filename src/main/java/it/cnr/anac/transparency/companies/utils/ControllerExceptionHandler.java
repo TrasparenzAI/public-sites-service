@@ -17,6 +17,7 @@
 
 package it.cnr.anac.transparency.companies.utils;
 
+import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockedException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,12 @@ public class ControllerExceptionHandler {
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ResponseEntity<String> handleOfficeNotFound(RuntimeException ex) {
     return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(IndicePaUpdateLockedException.class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  public ResponseEntity<String> handleIndicePaUpdateLocked(IndicePaUpdateLockedException ex) {
+    return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
   }
 
 }

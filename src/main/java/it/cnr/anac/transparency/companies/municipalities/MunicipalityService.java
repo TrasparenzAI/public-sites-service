@@ -17,6 +17,8 @@
 package it.cnr.anac.transparency.companies.municipalities;
 
 import com.opencsv.bean.CsvToBeanBuilder;
+import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockService;
+import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockedException;
 import it.cnr.anac.transparency.companies.models.Municipality;
 import it.cnr.anac.transparency.companies.repositories.MunicipalityRepository;
 import it.cnr.anac.transparency.companies.v1.dto.MunicipalityMapper;
@@ -47,6 +49,7 @@ public class MunicipalityService {
 
   private final MunicipalityRepository repo;
   private final MunicipalityMapper mapper;
+  private final IndicePaUpdateLockService lockService;
 
   public List<MunicipalityCsvDto> getMunicipalitiesFromCsv() throws IOException {
     URL csvURL = new URL(istatCsvUrl);
@@ -60,6 +63,9 @@ public class MunicipalityService {
   }
 
   public int updateMunicipalitiesFromIstat() throws IOException {
+    if (lockService.isLocked()) {
+      throw new IndicePaUpdateLockedException();
+    }
     int municipalitiesUpdated = 0;
     var istatMunicipalities = getMunicipalitiesFromCsv();
 
