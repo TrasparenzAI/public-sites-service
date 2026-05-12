@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.13</version>
+		<version>3.5.14</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.cnr.anac.transparency.companies</groupId>
@@ -15,7 +15,7 @@
 	<description>Servizio per fornire la lista delle amministrazioni</description>
 	<properties>
 		<java.version>25</java.version>
-		<spring-cloud.version>2024.0.3</spring-cloud.version>
+		<spring-cloud.version>2025.0.1</spring-cloud.version>
 		<com.google.guava.version>33.5.0-jre</com.google.guava.version>
 		<org.mapstruct.version>1.6.3</org.mapstruct.version>
 		<jib.maven-plugin.version>3.5.1</jib.maven-plugin.version>
