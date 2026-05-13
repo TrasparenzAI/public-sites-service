@@ -19,6 +19,7 @@ package it.cnr.anac.transparency.companies.repositories;
 
 import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.models.CompanySource;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -54,4 +55,7 @@ public interface CompanyRepository  extends JpaRepository<Company,Long>, Queryds
 
   @Query("SELECT c FROM Company c WHERE c.dataCancellazione IS NULL AND c.address IS NOT NULL ORDER BY id ASC")
   public List<Company> findAllActiveWithAddress();
+
+  @Query("SELECT MAX(c.updatedAt) FROM Company c")
+  public Optional<LocalDateTime> findMaxUpdatedAt();
 }

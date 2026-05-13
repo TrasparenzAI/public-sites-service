@@ -30,7 +30,10 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.TestPropertySource;
@@ -41,6 +44,7 @@ import it.cnr.anac.transparency.companies.indicepa.IndicePaService;
 import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockService;
 import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockedException;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityService;
+import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.services.CachingService;
 
 /**
@@ -49,6 +53,10 @@ import it.cnr.anac.transparency.companies.services.CachingService;
  * Usa jwt() post processor per simulare autenticazione OAuth2.
  */
 @WebMvcTest(AdminController.class)
+@ImportAutoConfiguration({
+    SecurityAutoConfiguration.class,
+    ServletWebSecurityAutoConfiguration.class
+})
 @TestPropertySource(properties = {
     "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/dummy-jwks",
     "security.oauth2.enabled=true",
@@ -72,6 +80,9 @@ class AdminControllerLockTest {
 
   @MockitoBean
   private CachingService cachingService;
+
+  @MockitoBean
+  private CompanyRepository companyRepository;
 
   @MockitoBean
   private JwtDecoder jwtDecoder;
@@ -128,7 +139,7 @@ class AdminControllerLockTest {
 
   @Test
   void getLastUpdateRestituisceNullSeNonAncoraAggiornato() throws Exception {
-    when(lockService.getLastUpdate()).thenReturn(Optional.empty());
+    when(companyRepository.findMaxUpdatedAt()).thenReturn(Optional.empty());
 
     mockMvc.perform(get("/v1/admin/lastUpdate").with(jwt()))
         .andExpect(status().isOk())
@@ -138,7 +149,7 @@ class AdminControllerLockTest {
   @Test
   void getLastUpdateRestituisceTimestampSePresente() throws Exception {
     LocalDateTime timestamp = LocalDateTime.of(2026, 3, 15, 10, 30, 0);
-    when(lockService.getLastUpdate()).thenReturn(Optional.of(timestamp));
+    when(companyRepository.findMaxUpdatedAt()).thenReturn(Optional.of(timestamp));
 
     mockMvc.perform(get("/v1/admin/lastUpdate").with(jwt()))
         .andExpect(status().isOk())
