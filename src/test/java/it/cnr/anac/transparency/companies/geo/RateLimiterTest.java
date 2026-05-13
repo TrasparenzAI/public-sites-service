@@ -29,7 +29,6 @@ public class RateLimiterTest {
 
     @Test
     public void testRateLimiter() {
-        System.out.println("[DEBUG_LOG] RateLimiter config: " + rateLimiter.getRateLimiterConfig());
         when(client.searchAddress(anyString())).thenReturn(new ArrayList<>());
 
         Municipality municipality = new Municipality();
@@ -51,7 +50,6 @@ public class RateLimiterTest {
         
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        System.out.println("[DEBUG_LOG] Duration for 3 calls: " + duration + "ms");
         
         // Il rate limiter è configurato a 1 chiamata ogni 2 secondi.
         // Per 3 chiamate, la durata dovrebbe essere >= 2000ms. 

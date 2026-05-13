@@ -40,6 +40,7 @@ import it.cnr.anac.transparency.companies.indicepa.IndicePaService;
 import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockService;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityCsvDto;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityService;
+import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
 import it.cnr.anac.transparency.companies.services.CachingService;
 import it.cnr.anac.transparency.companies.v1.ApiRoutes;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
@@ -59,6 +60,7 @@ public class AdminController {
   private final IndicePaUpdateLockService lockService;
   private final MunicipalityService municipalityService;
   private final CachingService cachingService;
+  private final CompanyRepository companyRepository;
 
   @Operation(
       summary = "Visualizzazione di tutti gli enti presenti in IndicePA.",
@@ -176,14 +178,14 @@ public class AdminController {
   }
 
   @Operation(
-      summary = "Restituisce la data e ora dell'ultimo aggiornamento degli enti da IndicePA.",
-      description = "Restituisce il timestamp dell'ultima esecuzione completata con successo "
-          + "dell'aggiornamento da IndicePA, oppure null se non è mai stato eseguito.")
+      summary = "Restituisce la data e ora dell'ultimo aggiornamento degli enti.",
+      description = "Restituisce il timestamp massimo di aggiornamento degli enti, oppure null "
+          + "se non sono presenti enti.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Data dell'ultimo aggiornamento restituita correttamente")
   })
   @GetMapping("/lastUpdate")
   public ResponseEntity<LocalDateTime> lastUpdate() {
-    return ResponseEntity.ok(lockService.getLastUpdate().orElse(null));
+    return ResponseEntity.ok(companyRepository.findMaxUpdatedAt().orElse(null));
   }
 }
