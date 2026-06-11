@@ -60,6 +60,7 @@ Gli endpoint disponibili sono:
 | `POST` | `/v1/admin/unlock` | Disattiva il lock e consente nuovamente gli aggiornamenti da IndicePA. |
 | `GET` | `/v1/admin/lockStatus` | Restituisce `true` se il lock è attivo, `false` altrimenti. |
 | `GET` | `/v1/admin/lastUpdate` | Restituisce il timestamp dell'ultimo aggiornamento da IndicePA completato con successo, oppure una risposta vuota se non è mai stato eseguito. |
+| `GET` | `/v1/admin/indicePaUpdateHistory` | Restituisce lo storico paginato degli aggiornamenti da IndicePA completati con successo. |
 
 Esempi di utilizzo:
 
@@ -75,12 +76,44 @@ curl -X POST -H "Authorization: Bearer <token>" \
 
 curl -H "Authorization: Bearer <token>" \
   http://localhost:8080/v1/admin/lastUpdate
+
+curl -H "Authorization: Bearer <token>" \
+  "http://localhost:8080/v1/admin/indicePaUpdateHistory?page=0&size=20&sort=updateDate,desc"
 ```
 
 Lo stato del lock e la data dell'ultimo aggiornamento sono salvati nella tabella
 `indice_pa_update_settings`. La migrazione iniziale crea una riga con lock non attivo
 e `last_update` nullo. Il campo `last_update` viene aggiornato solo al termine di un
 aggiornamento da IndicePA completato con successo.
+
+### Storico degli aggiornamenti da IndicePA
+
+Ogni aggiornamento da IndicePA completato con successo registra una riga nella tabella
+`indice_pa_update_history`. Lo storico permette di ricostruire nel tempo il numero di
+amministrazioni gestite dal servizio e le variazioni rilevate durante l'allineamento
+con IndicePA.
+
+Per ogni esecuzione vengono salvate queste informazioni:
+
+| Campo | Descrizione |
+| --- | --- |
+| `update_date` | Data e ora di completamento dell'aggiornamento. |
+| `updated_from` | Eventuale filtro `updatedFrom` usato per processare solo gli enti aggiornati dopo una certa data. |
+| `total_indice_pa_companies` | Numero totale di amministrazioni lette da IndicePA. |
+| `processed_companies` | Numero di amministrazioni processate dopo l'eventuale filtro `updatedFrom`. |
+| `total_active_companies` | Numero di amministrazioni attive nel sistema dopo l'aggiornamento, limitato alla sorgente IndicePA. |
+| `total_visible_companies` | Numero di amministrazioni attive e visibili nel sistema dopo l'aggiornamento, limitato alla sorgente IndicePA. |
+| `inserted_companies` | Numero di amministrazioni inserite nel sistema. |
+| `modified_companies` | Numero di amministrazioni modificate nel sistema. |
+| `deleted_companies` | Numero di amministrazioni non più presenti in IndicePA e cancellate logicamente nel sistema. |
+
+Lo storico è consultabile tramite:
+
+```
+GET /v1/admin/indicePaUpdateHistory?page=0&size=20&sort=updateDate,desc
+```
+
+La risposta è una pagina Spring contenente gli stessi campi esposti in formato JSON.
 
 ### Sicurezza
 
