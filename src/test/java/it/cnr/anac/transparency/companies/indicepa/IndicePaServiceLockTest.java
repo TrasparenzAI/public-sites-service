@@ -16,28 +16,38 @@
  */
 package it.cnr.anac.transparency.companies.indicepa;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import it.cnr.anac.transparency.companies.indicepa.IndicePaResponse.IndicePaResult;
+import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.models.CompanySource;
+import it.cnr.anac.transparency.companies.models.IndicePaUpdateHistory;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
+import it.cnr.anac.transparency.companies.repositories.IndicePaUpdateHistoryRepository;
 import it.cnr.anac.transparency.companies.services.CompanyService;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
+import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
 
 @ExtendWith(MockitoExtension.class)
 class IndicePaServiceLockTest {
@@ -56,6 +66,9 @@ class IndicePaServiceLockTest {
 
   @Mock
   private IndicePaUpdateLockService lockService;
+
+  @Mock
+  private IndicePaUpdateHistoryRepository updateHistoryRepository;
 
   @InjectMocks
   private IndicePaService indicePaService;
@@ -86,10 +99,83 @@ class IndicePaServiceLockTest {
     response.setResult(result);
     when(indicePaClient.publicCompanies(any())).thenReturn(response);
     when(repo.findBySorgente(CompanySource.indicePA)).thenReturn(List.of());
+    when(repo.countBySorgenteAndDataCancellazioneIsNull(CompanySource.indicePA)).thenReturn(0L);
 
     indicePaService.updateCompaniesFromIndicePa(Optional.empty());
 
     verify(lockService).recordUpdate();
+  }
+
+  @Test
+  void updateSalvaStoricoConConteggiAggiornamento() {
+    when(lockService.isLocked()).thenReturn(false);
+
+    EnteDto insertedRecord = new EnteDto();
+    insertedRecord.setCodiceIpa("ipa-new");
+    insertedRecord.setDataAggiornamento(LocalDate.of(2026, 1, 20));
+    EnteDto updatedRecord = new EnteDto();
+    updatedRecord.setCodiceIpa("ipa-existing");
+    updatedRecord.setDataAggiornamento(LocalDate.of(2026, 1, 20));
+
+    IndicePaResult result = new IndicePaResult();
+    result.setRecords(List.of(insertedRecord, updatedRecord));
+    IndicePaResponse response = new IndicePaResponse();
+    response.setResult(result);
+    when(indicePaClient.publicCompanies(anyString())).thenReturn(response);
+
+    CompanyShowDto insertedDto = companyDto("ipa-new", "Nuovo ente");
+    CompanyShowDto updatedDto = companyDto("ipa-existing", "Ente aggiornato");
+    insertedDto.setDataAggiornamento(LocalDate.of(2026, 1, 20));
+    updatedDto.setDataAggiornamento(LocalDate.of(2026, 1, 20));
+    when(mapper.convert(insertedRecord)).thenReturn(insertedDto);
+    when(mapper.convert(updatedRecord)).thenReturn(updatedDto);
+
+    Company existingCompany = company("ipa-existing", "Vecchia denominazione", null);
+    Company deletedCompany = company("ipa-deleted", "Ente cancellato", null);
+    when(repo.findBySorgente(CompanySource.indicePA)).thenReturn(List.of(existingCompany, deletedCompany));
+    when(repo.findByCodiceIpa("ipa-existing")).thenReturn(Optional.of(existingCompany));
+    when(companyService.createCompany(insertedDto)).thenReturn(company("ipa-new", "Nuovo ente", null));
+    lenient().when(companyService.updateCompany(existingCompany, updatedDto)).thenReturn(existingCompany);
+    when(repo.countBySorgenteAndDataCancellazioneIsNull(CompanySource.indicePA)).thenReturn(2L);
+    when(repo.countBySorgenteAndDataCancellazioneIsNullAndVisibileTrue(CompanySource.indicePA)).thenReturn(1L);
+
+    int updated = indicePaService.updateCompaniesFromIndicePa(Optional.of(LocalDate.of(2026, 1, 1)));
+
+    assertEquals(3, updated);
+    verify(lockService).recordUpdate();
+    verify(companyService).createCompany(insertedDto);
+    verify(companyService).updateCompany(existingCompany, updatedDto);
+    verify(repo).save(eq(deletedCompany));
+
+    ArgumentCaptor<IndicePaUpdateHistory> historyCaptor =
+        ArgumentCaptor.forClass(IndicePaUpdateHistory.class);
+    verify(updateHistoryRepository).save(historyCaptor.capture());
+    IndicePaUpdateHistory history = historyCaptor.getValue();
+
+    assertEquals(LocalDate.of(2026, 1, 1), history.getUpdatedFrom());
+    assertEquals(2, history.getTotalIndicePaCompanies());
+    assertEquals(2, history.getProcessedCompanies());
+    assertEquals(2, history.getTotalActiveCompanies());
+    assertEquals(1, history.getTotalVisibleCompanies());
+    assertEquals(1, history.getInsertedCompanies());
+    assertEquals(1, history.getModifiedCompanies());
+    assertEquals(1, history.getDeletedCompanies());
+  }
+
+  private CompanyShowDto companyDto(String codiceIpa, String denominazione) {
+    CompanyShowDto companyDto = new CompanyShowDto();
+    companyDto.setCodiceIpa(codiceIpa);
+    companyDto.setDenominazioneEnte(denominazione);
+    return companyDto;
+  }
+
+  private Company company(String codiceIpa, String denominazione, LocalDate dataCancellazione) {
+    Company company = new Company();
+    company.setCodiceIpa(codiceIpa);
+    company.setDenominazioneEnte(denominazione);
+    company.setDataCancellazione(dataCancellazione);
+    company.setSorgente(CompanySource.indicePA);
+    return company;
   }
 
 }

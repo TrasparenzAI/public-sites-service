@@ -41,6 +41,10 @@ public interface CompanyRepository  extends JpaRepository<Company,Long>, Queryds
 
   public List<Company> findBySorgente(CompanySource companySource);
 
+  public long countBySorgenteAndDataCancellazioneIsNull(CompanySource companySource);
+
+  public long countBySorgenteAndDataCancellazioneIsNullAndVisibileTrue(CompanySource companySource);
+
   @Query("SELECT c FROM Company c WHERE c.dataCancellazione is null")
   public Page<Company> findAllActive(Pageable page);
 

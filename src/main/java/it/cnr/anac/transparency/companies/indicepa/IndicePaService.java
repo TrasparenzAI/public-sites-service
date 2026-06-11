@@ -19,11 +19,14 @@ package it.cnr.anac.transparency.companies.indicepa;
 
 import it.cnr.anac.transparency.companies.models.Company;
 import it.cnr.anac.transparency.companies.models.CompanySource;
+import it.cnr.anac.transparency.companies.models.IndicePaUpdateHistory;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
+import it.cnr.anac.transparency.companies.repositories.IndicePaUpdateHistoryRepository;
 import it.cnr.anac.transparency.companies.services.CompanyService;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyMapper;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,6 +55,7 @@ public class IndicePaService {
   private final CompanyRepository repo;
   private final CompanyService companyService;
   private final IndicePaUpdateLockService lockService;
+  private final IndicePaUpdateHistoryRepository updateHistoryRepository;
 
   /**
    * @return la lista delle aziende pubbliche presenti nel IndicePA
@@ -72,7 +76,6 @@ public class IndicePaService {
     if (lockService.isLocked()) {
       throw new IndicePaUpdateLockedException();
     }
-    int companiesUpdated = 0;
     val allIndicePaCompanies = getCompaniesFromIndicePa(Optional.empty());
     var indicePaCompanies = allIndicePaCompanies;
 
@@ -94,14 +97,14 @@ public class IndicePaService {
         .map(codiceIpa -> indicePaCompaniesMap.get(codiceIpa))
         .collect(Collectors.toList());
 
-    companiesUpdated += insertCompanies(indicePaNotInLocal);
+    int companiesInserted = insertCompanies(indicePaNotInLocal);
 
     List<CompanyShowDto> indicePaInLocal = indicePaCompaniesMap.keySet().stream()
         .filter(element -> localCompaniesMap.keySet().contains(element))
         .map(codiceIpa -> indicePaCompaniesMap.get(codiceIpa))
         .collect(Collectors.toList());
 
-    companiesUpdated += updateCompanies(indicePaInLocal);
+    int companiesModified = updateCompanies(indicePaInLocal);
 
     //Per la disattivazione degli enti presenti in locale è necessario verificare che non siano
     //più presenti in indicePA, considerando tutti gli enti in indicePA non solo quelli filtrati in
@@ -115,11 +118,32 @@ public class IndicePaService {
         .filter(company -> company.getDataCancellazione() == null)
         .collect(Collectors.toList());
 
-    companiesUpdated += disableCompanies(localNotInIndicePaToDisable);
+    int companiesDeleted = disableCompanies(localNotInIndicePaToDisable);
 
+    int companiesUpdated = companiesInserted + companiesModified + companiesDeleted;
+    saveUpdateHistory(lastUpdateFrom, allIndicePaCompanies.size(), indicePaCompanies.size(),
+        companiesInserted, companiesModified, companiesDeleted);
     lockService.recordUpdate();
 
     return companiesUpdated;
+  }
+
+  private void saveUpdateHistory(Optional<LocalDate> updatedFrom, int totalIndicePaCompanies,
+      int processedCompanies, int insertedCompanies, int modifiedCompanies, int deletedCompanies) {
+    IndicePaUpdateHistory history = new IndicePaUpdateHistory();
+    history.setUpdateDate(LocalDateTime.now());
+    history.setUpdatedFrom(updatedFrom.orElse(null));
+    history.setTotalIndicePaCompanies(totalIndicePaCompanies);
+    history.setProcessedCompanies(processedCompanies);
+    history.setTotalActiveCompanies(
+        Math.toIntExact(repo.countBySorgenteAndDataCancellazioneIsNull(CompanySource.indicePA)));
+    history.setTotalVisibleCompanies(
+        Math.toIntExact(repo.countBySorgenteAndDataCancellazioneIsNullAndVisibileTrue(CompanySource.indicePA)));
+    history.setInsertedCompanies(insertedCompanies);
+    history.setModifiedCompanies(modifiedCompanies);
+    history.setDeletedCompanies(deletedCompanies);
+    updateHistoryRepository.save(history);
+    log.info("Salvato storico aggiornamento IndicePA {}", history);
   }
 
   private int insertCompanies(List<CompanyShowDto> companies) {

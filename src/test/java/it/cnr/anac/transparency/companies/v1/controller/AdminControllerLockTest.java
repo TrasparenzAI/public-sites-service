@@ -23,9 +23,12 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -34,6 +37,8 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.TestPropertySource;
@@ -44,8 +49,12 @@ import it.cnr.anac.transparency.companies.indicepa.IndicePaService;
 import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockService;
 import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockedException;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityService;
+import it.cnr.anac.transparency.companies.models.IndicePaUpdateHistory;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
+import it.cnr.anac.transparency.companies.repositories.IndicePaUpdateHistoryRepository;
 import it.cnr.anac.transparency.companies.services.CachingService;
+import it.cnr.anac.transparency.companies.v1.dto.IndicePaUpdateHistoryMapper;
+import it.cnr.anac.transparency.companies.v1.dto.IndicePaUpdateHistoryShowDto;
 
 /**
  * Test REST per i nuovi endpoint di lock/unlock/lastUpdate su AdminController.
@@ -83,6 +92,12 @@ class AdminControllerLockTest {
 
   @MockitoBean
   private CompanyRepository companyRepository;
+
+  @MockitoBean
+  private IndicePaUpdateHistoryRepository updateHistoryRepository;
+
+  @MockitoBean
+  private IndicePaUpdateHistoryMapper updateHistoryMapper;
 
   @MockitoBean
   private JwtDecoder jwtDecoder;
@@ -176,6 +191,44 @@ class AdminControllerLockTest {
         .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
         .andExpect(status().isOk())
         .andExpect(content().string("42"));
+  }
+
+  @Test
+  void getIndicePaUpdateHistoryRestituiscePaginaStorico() throws Exception {
+    IndicePaUpdateHistory history = new IndicePaUpdateHistory();
+    history.setId(7L);
+
+    IndicePaUpdateHistoryShowDto dto = new IndicePaUpdateHistoryShowDto();
+    dto.setId(7L);
+    dto.setUpdateDate(LocalDateTime.of(2026, 2, 16, 6, 30));
+    dto.setUpdatedFrom(LocalDate.of(2026, 2, 1));
+    dto.setTotalIndicePaCompanies(100);
+    dto.setProcessedCompanies(90);
+    dto.setTotalActiveCompanies(95);
+    dto.setTotalVisibleCompanies(88);
+    dto.setInsertedCompanies(5);
+    dto.setModifiedCompanies(3);
+    dto.setDeletedCompanies(2);
+
+    when(updateHistoryRepository.findAll(any(PageRequest.class)))
+        .thenReturn(new PageImpl<>(List.of(history), PageRequest.of(0, 20), 1));
+    when(updateHistoryMapper.convert(history)).thenReturn(dto);
+
+    mockMvc.perform(get("/v1/admin/indicePaUpdateHistory")
+        .param("page", "0")
+        .param("size", "20")
+        .with(jwt()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].id").value(7))
+        .andExpect(jsonPath("$.content[0].updateDate").value("2026-02-16T06:30:00"))
+        .andExpect(jsonPath("$.content[0].updatedFrom").value("2026-02-01"))
+        .andExpect(jsonPath("$.content[0].totalIndicePaCompanies").value(100))
+        .andExpect(jsonPath("$.content[0].processedCompanies").value(90))
+        .andExpect(jsonPath("$.content[0].totalActiveCompanies").value(95))
+        .andExpect(jsonPath("$.content[0].totalVisibleCompanies").value(88))
+        .andExpect(jsonPath("$.content[0].insertedCompanies").value(5))
+        .andExpect(jsonPath("$.content[0].modifiedCompanies").value(3))
+        .andExpect(jsonPath("$.content[0].deletedCompanies").value(2));
   }
 
 }

@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,9 +43,12 @@ import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockService;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityCsvDto;
 import it.cnr.anac.transparency.companies.municipalities.MunicipalityService;
 import it.cnr.anac.transparency.companies.repositories.CompanyRepository;
+import it.cnr.anac.transparency.companies.repositories.IndicePaUpdateHistoryRepository;
 import it.cnr.anac.transparency.companies.services.CachingService;
 import it.cnr.anac.transparency.companies.v1.ApiRoutes;
 import it.cnr.anac.transparency.companies.v1.dto.CompanyShowDto;
+import it.cnr.anac.transparency.companies.v1.dto.IndicePaUpdateHistoryMapper;
+import it.cnr.anac.transparency.companies.v1.dto.IndicePaUpdateHistoryShowDto;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +66,8 @@ public class AdminController {
   private final MunicipalityService municipalityService;
   private final CachingService cachingService;
   private final CompanyRepository companyRepository;
+  private final IndicePaUpdateHistoryRepository updateHistoryRepository;
+  private final IndicePaUpdateHistoryMapper updateHistoryMapper;
 
   @Operation(
       summary = "Visualizzazione di tutti gli enti presenti in IndicePA.",
@@ -187,5 +194,19 @@ public class AdminController {
   @GetMapping("/lastUpdate")
   public ResponseEntity<LocalDateTime> lastUpdate() {
     return ResponseEntity.ok(companyRepository.findMaxUpdatedAt().orElse(null));
+  }
+
+  @Operation(
+      summary = "Restituisce lo storico degli aggiornamenti da IndicePA.",
+      description = "Restituisce una lista paginata degli aggiornamenti da IndicePA completati con successo, "
+          + "includendo data di esecuzione, numero di amministrazioni presenti, visibili, processate, "
+          + "inserite, modificate e cancellate logicamente.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Storico degli aggiornamenti restituito correttamente")
+  })
+  @GetMapping("/indicePaUpdateHistory")
+  public ResponseEntity<Page<IndicePaUpdateHistoryShowDto>> indicePaUpdateHistory(Pageable pageable) {
+    val history = updateHistoryRepository.findAll(pageable).map(updateHistoryMapper::convert);
+    return ResponseEntity.ok(history);
   }
 }
