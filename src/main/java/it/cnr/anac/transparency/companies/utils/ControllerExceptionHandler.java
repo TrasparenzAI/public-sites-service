@@ -19,6 +19,7 @@ package it.cnr.anac.transparency.companies.utils;
 
 import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockedException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,6 +43,12 @@ public class ControllerExceptionHandler {
   @ResponseStatus(HttpStatus.CONFLICT)
   public ResponseEntity<String> handleIndicePaUpdateLocked(IndicePaUpdateLockedException ex) {
     return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+  }
+
+  @ExceptionHandler(InvalidDataAccessApiUsageException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ResponseEntity<String> handleInvalidSort(InvalidDataAccessApiUsageException ex) {
+    return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
   }
 
 }

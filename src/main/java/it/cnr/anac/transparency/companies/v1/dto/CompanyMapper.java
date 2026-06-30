@@ -16,11 +16,10 @@
  */
 package it.cnr.anac.transparency.companies.v1.dto;
 
-import javax.inject.Inject;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.cnr.anac.transparency.companies.indicepa.EnteDto;
@@ -36,7 +35,7 @@ import it.cnr.anac.transparency.companies.repositories.MunicipalityRepository;
 @Mapper(componentModel = "spring")
 public abstract class CompanyMapper {
 
-  @Inject
+  @Autowired
   protected MunicipalityRepository municipalRepository;
 
   @Mapping(target = "dataAggiornamento", ignore = true)

@@ -17,7 +17,7 @@
 package it.cnr.anac.transparency.companies.municipalities;
 
 import java.io.IOException;
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PeriodicUpdateIstatMunicipalitiesTask {
 
-  @Inject
+  @Autowired
   MunicipalityService service;
 
   @Scheduled(cron = "0 40 06 ? * *")

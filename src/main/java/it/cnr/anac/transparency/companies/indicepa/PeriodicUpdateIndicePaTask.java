@@ -18,8 +18,7 @@ package it.cnr.anac.transparency.companies.indicepa;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class PeriodicUpdateIndicePaTask {
 
-  @Inject
+  @Autowired
   IndicePaService service;
 
   @Scheduled(cron = "${app.scheduling.indicepa.cron}")
