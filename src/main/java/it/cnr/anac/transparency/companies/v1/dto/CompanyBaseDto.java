@@ -43,6 +43,7 @@ public class CompanyBaseDto {
     private String sitoIstituzionale;
     private CompanySource sorgente;
     private LocalDate dataAggiornamento;
+    private LocalDate dataCancellazione;
 
     //Di default tutte le company sono visibili
     private Boolean visibile;
