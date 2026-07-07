@@ -203,6 +203,7 @@ public class IndicePaService {
         && Objects.equals(company.getDenominazioneEnte(), companyDto.getDenominazioneEnte())
         && Objects.equals(company.getSitoIstituzionale(), companyDto.getSitoIstituzionale())
         && Objects.equals(company.getTipologia(), companyDto.getTipologia())
+        && Objects.equals(company.getDataCancellazione(), companyDto.getDataCancellazione())
 
         && areAddressesEqual(company, companyDto)
 

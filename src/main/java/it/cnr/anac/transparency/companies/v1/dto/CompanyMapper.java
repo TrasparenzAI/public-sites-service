@@ -58,7 +58,7 @@ public abstract class CompanyMapper {
   @Mapping(target = "comune", 
       expression = "java(municipalRepository.findByCodiceCatastale(companyDto.getCodiceCatastaleComune()).orElse(null))")
   @Mapping(target = "id", ignore = true)
-  @Mapping(target = "dataCancellazione", ignore = true)
+  @Mapping(target = "dataCancellazione", ignore = false)
   @Mapping(target = "address", ignore = true)
   @Mapping(target = "denominazioneComune", ignore = true)
   @Mapping(target = "denominazioneUnitaSovracomunale", ignore = true)
