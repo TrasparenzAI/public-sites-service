@@ -35,3 +35,6 @@ build/
 !.mvn/
 .mvn/*
 !.mvn/jvm.config
+!.mvn/wrapper/
+.mvn/wrapper/*
+!.mvn/wrapper/maven-wrapper.properties
