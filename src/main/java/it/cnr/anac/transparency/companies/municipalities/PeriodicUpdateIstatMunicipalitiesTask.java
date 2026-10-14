@@ -16,6 +16,7 @@
  */
 package it.cnr.anac.transparency.companies.municipalities;
 
+import it.cnr.anac.transparency.companies.indicepa.IndicePaUpdateLockedException;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import lombok.val;
@@ -33,8 +34,12 @@ public class PeriodicUpdateIstatMunicipalitiesTask {
   @Scheduled(cron = "0 40 06 ? * *")
   public void updateIstatMunicipalities() throws IOException {
     log.info("Avvio aggiornamento dei comuni da Istat");
-    val updated = service.updateMunicipalitiesFromIstat();
-    log.info("Fine aggiornamento comuni da Istat, aggiornati {} comuni", updated);
+    try {
+      val updated = service.updateMunicipalitiesFromIstat();
+      log.info("Fine aggiornamento comuni da Istat, aggiornati {} comuni", updated);
+    } catch (IndicePaUpdateLockedException e) {
+      log.warn("Aggiornamento periodico dei comuni da Istat saltato: {}", e.getMessage());
+    }
   }
 
 }

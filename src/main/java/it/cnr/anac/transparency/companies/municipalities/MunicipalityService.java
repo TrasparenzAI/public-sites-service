@@ -25,7 +25,9 @@ import it.cnr.anac.transparency.companies.v1.dto.MunicipalityMapper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
+import java.net.URI;
+import java.net.URLConnection;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -46,20 +48,29 @@ public class MunicipalityService {
   String istatCsvUrl;
   @Value("${transparency.municipalities.csv.encoding}")
   String istatCsvEncoding;
+  @Value("${transparency.municipalities.csv.connect-timeout:30s}")
+  Duration istatCsvConnectTimeout;
+  @Value("${transparency.municipalities.csv.read-timeout:60s}")
+  Duration istatCsvReadTimeout;
 
   private final MunicipalityRepository repo;
   private final MunicipalityMapper mapper;
   private final IndicePaUpdateLockService lockService;
 
   public List<MunicipalityCsvDto> getMunicipalitiesFromCsv() throws IOException {
-    URL csvURL = new URL(istatCsvUrl);
-    BufferedReader in = new BufferedReader(new InputStreamReader(csvURL.openStream(), istatCsvEncoding));
-    List<MunicipalityCsvDto> municipalities = new CsvToBeanBuilder<MunicipalityCsvDto>(in)
-        .withType(MunicipalityCsvDto.class)
-        .withSeparator(';')
-        .build().parse();
-    //La prima riga è l'intestazione, che evitiamo
-    return municipalities.stream().skip(1).collect(Collectors.toList());
+    URLConnection connection = URI.create(istatCsvUrl).toURL().openConnection();
+    //Senza timeout una mancata risposta di Istat bloccherebbe indefinitamente il thread dello scheduler
+    connection.setConnectTimeout((int) istatCsvConnectTimeout.toMillis());
+    connection.setReadTimeout((int) istatCsvReadTimeout.toMillis());
+    try (BufferedReader in = new BufferedReader(
+        new InputStreamReader(connection.getInputStream(), istatCsvEncoding))) {
+      List<MunicipalityCsvDto> municipalities = new CsvToBeanBuilder<MunicipalityCsvDto>(in)
+          .withType(MunicipalityCsvDto.class)
+          .withSeparator(';')
+          .build().parse();
+      //La prima riga è l'intestazione, che evitiamo
+      return municipalities.stream().skip(1).collect(Collectors.toList());
+    }
   }
 
   public int updateMunicipalitiesFromIstat() throws IOException {
