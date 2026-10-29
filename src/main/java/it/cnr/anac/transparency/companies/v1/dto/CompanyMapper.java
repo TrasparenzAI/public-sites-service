@@ -66,6 +66,8 @@ public abstract class CompanyMapper {
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "version", ignore = true)
+  //La visibilità si gestisce solo con setVisibile/setInvisibile
+  @Mapping(target = "visibile", ignore = true)
   public  abstract void update(@MappingTarget Company company, CompanyCreateDto companyDto);
 
 }
